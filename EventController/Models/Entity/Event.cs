@@ -43,12 +43,6 @@ public class Event
 
     public string Status { get; set; }
 
-    public bool IsPublic { get; set; } = true;
-
-    public string Tags { get; set; }
-
-    public string TimeZone { get; set; }
-
     public virtual ICollection<Registration> Registrations { get; set; }
 
     public virtual ICollection<EventMedia> EventMedias { get; set; }

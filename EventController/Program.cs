@@ -1,4 +1,5 @@
-using EventController.Models.DBcontext;
+using EventController.Models.DAO.Implements;
+using EventController.Models.Data.DBcontext;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,13 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DBContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("MyDatabase")));
+
+
+builder.Services.AddScoped<CategoryDAO>();
+builder.Services.AddScoped<EventDAO>();
+builder.Services.AddScoped<UserDAO>();
+builder.Services.AddScoped<VenueDAO>();
+
 
 var app = builder.Build();
 
@@ -29,7 +37,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=User}/{action=EditUserProfile}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
 

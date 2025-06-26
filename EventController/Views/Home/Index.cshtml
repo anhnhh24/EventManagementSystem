@@ -14,49 +14,49 @@
     <style>
         /* Tuỳ biến nhanh */
         .hero-title {
-            font-weight: 600;
-            font-size: 2rem;
+        font-weight: 600;
+        font-size: 2rem;
         }
 
         .category-icon {
-            width: 72px;
-            height: 72px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: #f1f1f1;
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #f1f1f1;
         }
 
         .section-heading {
-            font-weight: 600;
-            font-size: 1.25rem;
-            margin-bottom: .75rem;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: .75rem;
         }
 
         .cta-banner {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 2rem;
         }
 
         .vendor-card,
         .media-card {
-            background: #fafafa;
-            border: 1px solid #e5e5e5;
-            border-radius: 6px;
-            min-height: 120px;
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+        min-height: 120px;
         }
 
         .review-box {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 1.5rem;
         }
 
         .review-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
         }
     </style>
 </head>
@@ -69,12 +69,15 @@
 
             <form class="row gy-2 gx-3 justify-content-center">
                 <div class="col-md-3">
-                    <select class="form-select" aria-label="Select category">
-                        <option selected>Select Category</option>
-                        <option value="1">Catering</option>
-                        <option value="2">Venue</option>
-                        <option value="3">Photography</option>
+
+                    <select class="form-select" aria-label="Select category" name="Category">
+                        <option value="All">All categories</option>
+                        @foreach (var item in ViewBag.listCategory)
+                        {
+                            <option value="@item.CategoryID">@item.CategoryName</option>
+                        }
                     </select>
+
                 </div>
 
                 <div class="col-md-3">
@@ -97,31 +100,13 @@
             </div>
 
             <div class="row g-4 text-center">
-                <!-- 6 mục mẫu -->
-                <div class="col-4 col-md-2">
-                    <img src="https://via.placeholder.com/72" class="category-icon mb-2" alt="">
-                    <p class="mb-0 small">Destination<br>Wedding</p>
-                </div>
-                <div class="col-4 col-md-2">
-                    <img src="https://via.placeholder.com/72" class="category-icon mb-2" alt="">
-                    <p class="mb-0 small">Wedding Dress</p>
-                </div>
-                <div class="col-4 col-md-2">
-                    <img src="https://via.placeholder.com/72" class="category-icon mb-2" alt="">
-                    <p class="mb-0 small">Photographer</p>
-                </div>
-                <div class="col-4 col-md-2">
-                    <img src="https://via.placeholder.com/72" class="category-icon mb-2" alt="">
-                    <p class="mb-0 small">Catering</p>
-                </div>
-                <div class="col-4 col-md-2">
-                    <img src="https://via.placeholder.com/72" class="category-icon mb-2" alt="">
-                    <p class="mb-0 small">Music Band</p>
-                </div>
-                <div class="col-4 col-md-2">
-                    <img src="https://via.placeholder.com/72" class="category-icon mb-2" alt="">
-                    <p class="mb-0 small">Decoration</p>
-                </div>
+                @foreach (var item in ((IEnumerable<dynamic>)ViewBag.listCategory).Take(6))
+                {
+                    <div class="col-4 col-md-2">
+                        <i class="@item.Icon mb-2"></i>
+                        <p class="mb-0 small">@item.CategoryName</p>
+                    </div>
+                }
             </div>
         </div>
     </section>
@@ -133,42 +118,23 @@
                 <h2 class="section-heading">Popular Venues</h2>
                 <a href="#" class="small text-decoration-none">See all</a>
             </div>
-
-            <div class="row g-4">
-                <!-- 4 venue card mẫu -->
-                <div class="col-6 col-md-3">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="">
-                        <div class="card-body p-2">
-                            <h6 class="card-title mb-0 small text-center">Riverside Hall</h6>
+            
+             <div class="row g-4">
+                 @foreach (var item in ViewBag.listVenue)
+            {
+               
+                    <div class="col-6 col-md-3">
+                        <div class="card">
+                            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="">
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-0 small text-center">@item.Name</h6>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="">
-                        <div class="card-body p-2">
-                            <h6 class="card-title mb-0 small text-center">Sunny Resort</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="">
-                        <div class="card-body p-2">
-                            <h6 class="card-title mb-0 small text-center">Grand Opera House</h6>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card">
-                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="">
-                        <div class="card-body p-2">
-                            <h6 class="card-title mb-0 small text-center">Ocean View Villa</h6>
-                        </div>
-                    </div>
-                </div>
+               
+            } 
             </div>
+             
         </div>
     </section>
 
@@ -186,25 +152,57 @@
         </div>
     </section>
 
-    <!-- ========== FEATURED VENDORS ========== -->
-    <section class="pb-5">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="section-heading">Featured Vendors</h2>
-                <a href="#" class="small text-decoration-none">See all</a>
+    <!-- ========== FEATURED EVENT ========== -->
+    <div class="container my-5">
+        <h4 class="mb-4">🔥 Upcoming Events</h4>
+
+        <div id="multiEventCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                @{
+                    var events = ViewBag.listEvent as List<Event>;
+                    int eventsPerSlide = 4;
+                    int totalSlides = (int)Math.Ceiling((double)events.Count / eventsPerSlide);
+                    for (int slideIndex = 0; slideIndex < totalSlides; slideIndex++)
+                    {
+                        var chunk = events.Skip(slideIndex * eventsPerSlide).Take(eventsPerSlide).ToList();
+                    
+                    <div class="carousel-item @(slideIndex == 0 ? "active" : "")">
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 g-3">
+                            @foreach (var item in chunk)
+                            {
+                                <div class="col">
+                                    <div class="card shadow-sm h-100">
+                                        <img src="@item.ImageUrl ?? " https: //via.placeholder.com/300x150"" class="card-img-top event-img" alt="event image">
+                                        <div class="card-body d-flex flex-column">
+                                            <h6 class="card-title fw-bold">@item.Title</h6>
+                                            <p class="card-text small text-muted mb-2">
+                                                <i class="bi bi-calendar-event"></i> @item.StartTime.ToString("dd MMM yyyy") <br />
+                                                <i class="bi bi-geo-alt"></i> @item.Location
+                                            </p>
+                                            <a href="/Event/Details/@item.EventID" class="btn btn-outline-primary mt-auto btn-sm">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                }
             </div>
 
-            <div class="row g-3">
-                <!-- 6 vendor card placeholder -->
-                <div class="col-6 col-md-2"><div class="vendor-card d-flex align-items-center justify-content-center">Logo/Photo</div></div>
-                <div class="col-6 col-md-2"><div class="vendor-card d-flex align-items-center justify-content-center">Logo/Photo</div></div>
-                <div class="col-6 col-md-2"><div class="vendor-card d-flex align-items-center justify-content-center">Logo/Photo</div></div>
-                <div class="col-6 col-md-2"><div class="vendor-card d-flex align-items-center justify-content-center">Logo/Photo</div></div>
-                <div class="col-6 col-md-2"><div class="vendor-card d-flex align-items-center justify-content-center">Logo/Photo</div></div>
-                <div class="col-6 col-md-2"><div class="vendor-card d-flex align-items-center justify-content-center">Logo/Photo</div></div>
-            </div>
+            <!-- Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#multiEventCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#multiEventCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
         </div>
-    </section>
+    </div>
+
+
 
     <!-- ========== REVIEWS ========== -->
     <section class="pb-5 bg-light">
