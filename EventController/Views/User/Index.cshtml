@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Profile</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <style>
+        .avatar-lg {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-card {
+            border: 1px solid #e3e3e3;
+            border-radius: 8px;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+        }
+
+        .event-mini {
+            border-bottom: 1px solid #eee;
+            padding: .75rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-5" style="max-width: 900px;">
+        <div class="card profile-card shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-4">
+                    <img src="https://via.placeholder.com/120" class="avatar-lg" alt="User Avatar">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1 fw-bold">Nguyen Van A</h4>
+                        <span class="badge bg-primary">Participant</span>
+                        <p class="small text-muted mb-0">Member since: 12 Jan 2024</p>
+                    </div>
+                    <a href="edit-profile.html" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
+                </div>
+
+                <!-- Basic Info -->
+                <hr class="my-4">
+                <div class="row g-3 small">
+                    <div class="col-md-6"><strong>Email:</strong> you@example.com</div>
+                    <div class="col-md-6"><strong>Phone:</strong> 012 345 6789</div>
+                    <div class="col-md-6"><strong>Gender:</strong> Male</div>
+                    <div class="col-md-6"><strong>Date of Birth:</strong> 15 Feb 1995</div>
+                    <div class="col-12"><strong>Address:</strong> 123 Le Loi St, District 1, HCMC</div>
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-pills mt-4" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="events-tab" data-bs-toggle="pill"
+                                data-bs-target="#events" type="button" role="tab">
+                            My Events
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="registrations-tab" data-bs-toggle="pill"
+                                data-bs-target="#registrations" type="button" role="tab">
+                            Registrations
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-3">
+
+                    <!-- Organized Events -->
+                    <div class="tab-pane fade show active" id="events" role="tabpanel">
+                        <!-- Event item -->
+                        <div class="event-mini d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>AI Conference 2025</strong><br>
+                                <small class="text-muted">01 Sep 2025 — Grand Hall, HCMC</small>
+                            </div>
+                            <a href="#" class="btn btn-sm btn-outline-secondary">Manage</a>
+                        </div>
+
+                        <div class="event-mini d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Startup Pitch Day</strong><br>
+                                <small class="text-muted">15 Oct 2025 — Hanoi</small>
+                            </div>
+                            <a href="#" class="btn btn-sm btn-outline-secondary">Manage</a>
+                        </div>
+                    </div>
+
+                    <!-- Registrations -->
+                    <div class="tab-pane fade" id="registrations" role="tabpanel">
+                        <div class="event-mini d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Design Thinking Workshop</strong><br>
+                                <small class="text-muted">25 Aug 2025 — Da Nang</small>
+                            </div>
+                            <span class="badge bg-success">Registered</span>
+                        </div>
+
+                        <div class="event-mini d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Acoustic Night Live</strong><br>
+                                <small class="text-muted">10 Sep 2025 — HCMC</small>
+                            </div>
+                            <span class="badge bg-success">Registered</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

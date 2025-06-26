@@ -13,12 +13,8 @@ public class Venue
 
     public int? Capacity { get; set; }
 
-    public decimal? Latitude { get; set; }
+    public string Description { get; set; }
 
-    public decimal? Longitude { get; set; }
-
-    public string ContactInfo { get; set; }
-
-    public string VenueType { get; set; }  // enum string or int
+    public string Image { get; set; } 
     public virtual ICollection<Event> Events { get; set; }
 }
