@@ -29,7 +29,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Authentication}/{action=SignIn}/{id?}");
+    pattern: "{controller=User}/{action=EditUserProfile}/{id?}");
 
 app.Run();
 

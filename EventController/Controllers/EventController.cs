@@ -14,5 +14,9 @@ namespace EventController.Controllers
         {
             return View();
         }
+        public IActionResult EventList()
+        {
+            return View();
+        }
     }
 }
