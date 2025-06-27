@@ -21,7 +21,6 @@ namespace EventController.Models.Entity
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
 
-        [MaxLength(20)]
         public string Phone { get; set; }
 
         [Required]

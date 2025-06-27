@@ -1,4 +1,6 @@
 ﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+@using EventController.Models.DTO
+@model UserDTO
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,18 +46,25 @@
     <div class="container py-5" style="max-width: 500px;">
         <h2 class="text-center mb-4">Log In</h2>
 
+        @if (ViewBag.Notification != null)
+        {
+            <div class="alert alert-success">
+                @ViewBag.Notification
+            </div>
+        }
+
         <!-- EMAIL/PASSWORD FORM -->
-        <form>
+        <form asp-action="SignIn" asp-controller="Authentication">
             <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="email" placeholder="you@example.com" required>
+                <input type="email" class="form-control" id="email" placeholder="you@example.com" asp-for="Email" required>
             </div>
 
             <!-- Password -->
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+                <input type="password" class="form-control" id="password" placeholder="Enter password" asp-for="Password" required>
             </div>
 
             <!-- Remember + Forgot -->

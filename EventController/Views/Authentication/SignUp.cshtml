@@ -13,74 +13,144 @@
     <div class="container py-5" style="max-width: 600px;">
         <h2 class="text-center mb-4">Create an Account</h2>
 
+        @if (ViewBag.Notification != null)
+        {
+            <div class="alert alert-error">
+                @ViewBag.Notification
+            </div>
+        }
         <form method="post" asp-action="Register" asp-controller="Authentication">
             <!-- Full Name -->
             <div class="mb-3">
                 <label for="fullName" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="fullName" placeholder="Nguyen Van A" asp-for="FullName" required>
+                <input type="text"
+                       class="form-control"
+                       id="fullName"
+                       placeholder="Nguyen Van A"
+                       asp-for="FullName"
+                       required>
+                <span asp-validation-for="FullName" class="text-danger"></span>
             </div>
 
             <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="email" placeholder="you@example.com" asp-for="Email" required>
+                <input type="email"
+                       class="form-control"
+                       id="email"
+                       placeholder="you@example.com"
+                       asp-for="Email"
+                       required>
+                <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
-            <!-- Role (hidden) -->
+            <!-- Role -->
             <div class="mb-3">
-                <label class="form-label">Select Role:</label><br />
+                <label class="form-label d-block">Select Role:</label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="roleID" id="roleUser" value="1" asp-for="RoleID">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="RoleID"
+                           id="roleUser"
+                           value="1"
+                           asp-for="RoleID">
                     <label class="form-check-label" for="roleUser">User</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="roleID" id="roleOrganizer" value="2" asp-for="RoleID">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="RoleID"
+                           id="roleOrganizer"
+                           value="2"
+                           asp-for="RoleID">
                     <label class="form-check-label" for="roleOrganizer">Organizer</label>
                 </div>
+                <span asp-validation-for="RoleID" class="text-danger"></span>
             </div>
 
             <!-- Phone -->
             <div class="mb-3">
                 <label for="phone" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="phone" placeholder="0123456789" asp-for="Phone">
+                <input type="text"
+                       class="form-control"
+                       id="phone"
+                       placeholder="0123456789"
+                       asp-for="Phone">
+                <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
 
             <!-- Gender -->
             <div class="mb-3">
                 <label class="form-label d-block">Gender</label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="genderMale" value="Male" asp-for="Gender" required>
+                    <input class="form-check-input"
+                           type="radio"
+                           name="Gender"
+                           id="genderMale"
+                           value="Male"
+                           asp-for="Gender"
+                           required>
                     <label class="form-check-label" for="genderMale">Male</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="Female" asp-for="Gender" required>
+                    <input class="form-check-input"
+                           type="radio"
+                           name="Gender"
+                           id="genderFemale"
+                           value="Female"
+                           asp-for="Gender"
+                           required>
                     <label class="form-check-label" for="genderFemale">Female</label>
                 </div>
+                <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
 
             <!-- Address -->
             <div class="mb-3">
-                <label for="address" class="form-label" >Address</label>
-                <textarea class="form-control" id="address" rows="2" placeholder="Enter your address here" asp-for="Address"></textarea>
+                <label for="address" class="form-label">Address</label>
+                <textarea class="form-control"
+                          id="address"
+                          rows="2"
+                          placeholder="Enter your address here"
+                          asp-for="Address"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
             </div>
 
             <!-- Date of Birth -->
             <div class="mb-3">
                 <label for="dob" class="form-label">Date of Birth</label>
-                <input type="date" class="form-control" id="dob" asp-for="DoB" required>
+                <input type="date"
+                       class="form-control"
+                       id="dob"
+                       asp-for="DoB"
+                       required>
+                <span asp-validation-for="DoB" class="text-danger"></span>
             </div>
 
-            <!-- Password -->
+            <!-- Password and Confirm Password -->
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Enter password" asp-for="Password" required>
+                    <input type="password"
+                           class="form-control"
+                           id="password"
+                           placeholder="Enter password"
+                           asp-for="Password"
+                           required>
+                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
-                    <label for="confirmPassword" class="form-label" >Confirm Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" placeholder="Repeat password" asp-for="ConfirmPassword" required>
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password"
+                           class="form-control"
+                           id="confirmPassword"
+                           placeholder="Repeat password"
+                           asp-for="ConfirmPassword"
+                           required>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
             </div>
+
 
 
             <!-- Submit -->

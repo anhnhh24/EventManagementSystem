@@ -2,6 +2,7 @@
 using EventController.Models.DTO;
 using EventController.Models.Entity;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace EventController.Controllers
 {
@@ -9,18 +10,33 @@ namespace EventController.Controllers
     {
         private readonly ILogger<AuthenticationController> _logger;
         UserDAO _userDAO;
+        EmailVerificationTokenDAO _emailDAO;
 
-        public AuthenticationController(ILogger<AuthenticationController> logger, UserDAO userDAO)
+        public AuthenticationController(ILogger<AuthenticationController> logger, UserDAO userDAO, EmailVerificationTokenDAO emailDAO)
         {
             _logger = logger;
             _userDAO = userDAO;
+            _emailDAO = emailDAO;
         }
         public IActionResult SignUp()
         {
             return View();
         }
-        public IActionResult SignIn()
+        public IActionResult SignIn(UserDTO user)
         {
+            if (!string.IsNullOrWhiteSpace(user.Email) && !string.IsNullOrWhiteSpace(user.Password))
+            {
+                var existingUser = _userDAO.GetUserByEmail(user.Email);
+
+                if (existingUser == null || !_userDAO.VerifyPassword(existingUser, user.Password))
+                {
+                    ViewBag.Notification = "Email or password invalid";
+                    return View();                
+                }
+
+                return RedirectToAction("Index", "Home");  
+            }
+
             return View();
         }
 
@@ -29,11 +45,32 @@ namespace EventController.Controllers
         {
             if (ModelState.IsValid)
             {
+
+                if (_userDAO.UserExistsByEmail(newUser.Email))
+                {
+                    ModelState.AddModelError(nameof(newUser.Email), "This e-mail is already registered.");
+                }
+
+                if (newUser.DoB != null)
+                {
+                    var today = DateTime.Today;
+                    int age = today.Year - newUser.DoB.Year;
+                    if (newUser.DoB.Date > today.AddYears(-age)) age--;
+
+                    if (age < 18)
+                        ModelState.AddModelError(nameof(newUser.DoB), "You must be at least 18 years old.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return View("SignUp");        
+                }
+
                 var user = new User
                 {
                     FullName = newUser.FullName,
                     Email = newUser.Email,
-                    Password = newUser.Password,
+                    Password = PasswordHelper.HashPassword(newUser.Password),
                     RoleID = newUser.RoleID,
                     Phone = newUser.Phone,
                     Gender = newUser.Gender,
@@ -42,11 +79,13 @@ namespace EventController.Controllers
                     Status = "Active",
                     IsEmailVerified = false
                 };
-
                 _userDAO.AddUser(user);
 
-                var token = Guid.NewGuid().ToString();
-                var confirmationLink = Url.Action("ConfirmEmail", "Authentication", new { email = newUser.Email, token = token }, Request.Scheme);
+                User user1 = _userDAO.GetUserByEmail(user.Email);
+
+                string verifyToken = _emailDAO.GenerateTokenAsync(user1.UserID).Result.Token;
+
+                var confirmationLink = Url.Action("ConfirmEmail", "Authentication", new { userId = user1.UserID, token = verifyToken }, Request.Scheme);
 
                 var emailService = new EmailService();
                 string subject = "Email Confirmation";
@@ -56,23 +95,59 @@ namespace EventController.Controllers
                                 <p><a href='{confirmationLink}'>Confirm Email</a></p>";
 
                 await emailService.SendConfirmationEmailAsync(newUser.Email, newUser.FullName, subject, content);
-                ViewBag.Notification = "Registration Successful";
-                return View("SignUp");
+                ViewBag.Notification = "Registration Successful, please verify account by your sign up email";
+                return View("SignIn");
             }
 
             return View("SignUp");
         }
 
 
-        public IActionResult ConfirmEmail(string email, string token)
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
-            var user = _userDAO.GetUserByEmail(email);
-            if (user == null) return NotFound();
-
-            user.IsEmailVerified = true;
-            _userDAO.UpdateUser(user);
-            ViewBag.Notification = "Email confirmed";
-            return View("SignUp");
+            try
+            {
+                int Id = int.Parse(userId);
+                User user = _userDAO.GetUserById(Id);
+                if (user != null)
+                {
+                    if (!user.IsEmailVerified)
+                    {
+                        EmailVerificationToken verifyToken = _emailDAO.GetValidTokenAsync(token, Id).Result;
+                        if (verifyToken.ExpiresAt > DateTime.Now)
+                        {
+                            if (verifyToken.Token.Equals(token))
+                            {
+                                user.IsEmailVerified = true;
+                                _userDAO.UpdateUser(user);
+                                ViewBag.Notification = "Email confirmed";
+                                return View("SignIn");
+                            }
+                            else
+                            {
+                                ViewBag.Notification = "Can not veritfy user's email";
+                                return View("SignIn");
+                            }
+                        }
+                        else
+                        {
+                            ViewBag.Notification = "Your confirmation link has expired";
+                            return View("SignIn");
+                        }
+                    }
+                    else
+                    {
+                        ViewBag.Notification = "Your account is verified";
+                        return View("SignIn");
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                ViewBag.Notification = "An error occur when verify user email";
+                return View("SignIn");
+            }
+            return View("SignIn");
         }
     }
 }

@@ -8,7 +8,7 @@ namespace EventController.Models.Data.DBcontext
         public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
         }
-
+        public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Category> Categories { get; set; }

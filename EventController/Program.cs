@@ -16,6 +16,7 @@ builder.Services.AddScoped<CategoryDAO>();
 builder.Services.AddScoped<EventDAO>();
 builder.Services.AddScoped<UserDAO>();
 builder.Services.AddScoped<VenueDAO>();
+builder.Services.AddScoped<EmailVerificationTokenDAO>();
 
 
 var app = builder.Build();

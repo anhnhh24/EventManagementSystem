@@ -78,8 +78,9 @@ namespace EventController.Models.DAO.Implements
 
         public bool VerifyPassword(User user, string plainPassword)
         {
-
-
+            var existingUser = _context.Users.FirstOrDefault(u => u.Email == user.Email);
+            if (user == null) return false;
+            PasswordHelper.VerifyPassword(user.Password, plainPassword);
             return true;
         }
     }

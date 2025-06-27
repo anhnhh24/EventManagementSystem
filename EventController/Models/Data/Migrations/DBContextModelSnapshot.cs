@@ -224,6 +224,37 @@ namespace EventController.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EventController.Models.Entity.EmailVerificationToken", b =>
+                {
+                    b.Property<int>("TokenID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TokenID"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("TokenID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("EmailVerificationTokens");
+                });
+
             modelBuilder.Entity("EventController.Models.Entity.User", b =>
                 {
                     b.Property<int>("UserID")
@@ -265,8 +296,7 @@ namespace EventController.Migrations
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProfileImage")
                         .HasColumnType("nvarchar(max)");
@@ -289,7 +319,7 @@ namespace EventController.Migrations
                         {
                             UserID = 1,
                             Address = "123 Admin St, HCMC",
-                            DateJoined = new DateTime(2025, 6, 27, 12, 5, 16, 240, DateTimeKind.Local).AddTicks(3097),
+                            DateJoined = new DateTime(2025, 6, 27, 15, 8, 50, 314, DateTimeKind.Local).AddTicks(514),
                             DoB = new DateTime(1992, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "alice.admin@example.com",
                             FullName = "Alice Admin",
@@ -305,7 +335,7 @@ namespace EventController.Migrations
                         {
                             UserID = 2,
                             Address = "456 Organizer Ave, Da Nang",
-                            DateJoined = new DateTime(2025, 6, 27, 12, 5, 16, 240, DateTimeKind.Local).AddTicks(3102),
+                            DateJoined = new DateTime(2025, 6, 27, 15, 8, 50, 314, DateTimeKind.Local).AddTicks(521),
                             DoB = new DateTime(1988, 7, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "bob.organizer@example.com",
                             FullName = "Bob Organizer",
@@ -321,7 +351,7 @@ namespace EventController.Migrations
                         {
                             UserID = 3,
                             Address = "789 Participant Rd, Hanoi",
-                            DateJoined = new DateTime(2025, 6, 27, 12, 5, 16, 240, DateTimeKind.Local).AddTicks(3104),
+                            DateJoined = new DateTime(2025, 6, 27, 15, 8, 50, 314, DateTimeKind.Local).AddTicks(524),
                             DoB = new DateTime(2000, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "charlie.participant@example.com",
                             FullName = "Charlie Participant",
@@ -656,6 +686,17 @@ namespace EventController.Migrations
                     b.Navigation("Organizer");
 
                     b.Navigation("Venue");
+                });
+
+            modelBuilder.Entity("EventController.Models.Entity.EmailVerificationToken", b =>
+                {
+                    b.HasOne("EventController.Models.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("EventController.Models.Entity.User", b =>

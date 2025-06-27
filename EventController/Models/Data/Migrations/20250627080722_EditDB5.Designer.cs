@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventController.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20250626185229_EditDB")]
-    partial class EditDB
+    [Migration("20250627080722_EditDB5")]
+    partial class EditDB5
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -235,7 +235,14 @@ namespace EventController.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DateJoined")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DoB")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -248,6 +255,10 @@ namespace EventController.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsEmailVerified")
                         .HasColumnType("bit");
 
@@ -255,17 +266,11 @@ namespace EventController.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PasswordSalt")
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("ProfileImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleID")
@@ -284,16 +289,50 @@ namespace EventController.Migrations
                     b.HasData(
                         new
                         {
-                            UserID = 2,
-                            DateJoined = new DateTime(2025, 6, 27, 1, 52, 27, 965, DateTimeKind.Local).AddTicks(690),
-                            Email = "organizer@example.com",
-                            FullName = "Event Organizer",
+                            UserID = 1,
+                            Address = "123 Admin St, HCMC",
+                            DateJoined = new DateTime(2025, 6, 27, 15, 7, 21, 400, DateTimeKind.Local).AddTicks(8763),
+                            DoB = new DateTime(1992, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "alice.admin@example.com",
+                            FullName = "Alice Admin",
+                            Gender = "Female",
                             IsEmailVerified = true,
-                            Password = "hashed-password",
-                            PasswordSalt = "random-salt",
-                            Phone = "0123456789",
-                            ProfileImage = "",
+                            Password = "P@ssw0rd!",
+                            Phone = "0901234567",
+                            ProfileImage = "/img/users/alice.jpg",
+                            RoleID = 1,
+                            Status = "Active"
+                        },
+                        new
+                        {
+                            UserID = 2,
+                            Address = "456 Organizer Ave, Da Nang",
+                            DateJoined = new DateTime(2025, 6, 27, 15, 7, 21, 400, DateTimeKind.Local).AddTicks(8769),
+                            DoB = new DateTime(1988, 7, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "bob.organizer@example.com",
+                            FullName = "Bob Organizer",
+                            Gender = "Male",
+                            IsEmailVerified = false,
+                            Password = "P@ssw0rd!",
+                            Phone = "0912345678",
+                            ProfileImage = "/img/users/bob.jpg",
                             RoleID = 2,
+                            Status = "Active"
+                        },
+                        new
+                        {
+                            UserID = 3,
+                            Address = "789 Participant Rd, Hanoi",
+                            DateJoined = new DateTime(2025, 6, 27, 15, 7, 21, 400, DateTimeKind.Local).AddTicks(8771),
+                            DoB = new DateTime(2000, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "charlie.participant@example.com",
+                            FullName = "Charlie Participant",
+                            Gender = "Other",
+                            IsEmailVerified = true,
+                            Password = "P@ssw0rd!",
+                            Phone = "0923456789",
+                            ProfileImage = "/img/users/charlie.jpg",
+                            RoleID = 3,
                             Status = "Active"
                         });
                 });
@@ -564,7 +603,7 @@ namespace EventController.Migrations
 
                     b.HasKey("VenueID");
 
-                    b.ToTable("Venue");
+                    b.ToTable("Venues");
 
                     b.HasData(
                         new

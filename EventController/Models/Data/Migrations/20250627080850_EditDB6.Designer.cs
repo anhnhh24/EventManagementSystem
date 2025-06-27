@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventController.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20250626190529_EditDB1")]
-    partial class EditDB1
+    [Migration("20250627080850_EditDB6")]
+    partial class EditDB6
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -227,6 +227,37 @@ namespace EventController.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EventController.Models.Entity.EmailVerificationToken", b =>
+                {
+                    b.Property<int>("TokenID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TokenID"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("TokenID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("EmailVerificationTokens");
+                });
+
             modelBuilder.Entity("EventController.Models.Entity.User", b =>
                 {
                     b.Property<int>("UserID")
@@ -235,7 +266,14 @@ namespace EventController.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DateJoined")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DoB")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -248,6 +286,10 @@ namespace EventController.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsEmailVerified")
                         .HasColumnType("bit");
 
@@ -255,17 +297,11 @@ namespace EventController.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PasswordSalt")
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("ProfileImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleID")
@@ -284,16 +320,50 @@ namespace EventController.Migrations
                     b.HasData(
                         new
                         {
-                            UserID = 2,
-                            DateJoined = new DateTime(2025, 6, 27, 2, 5, 28, 593, DateTimeKind.Local).AddTicks(2035),
-                            Email = "organizer@example.com",
-                            FullName = "Event Organizer",
+                            UserID = 1,
+                            Address = "123 Admin St, HCMC",
+                            DateJoined = new DateTime(2025, 6, 27, 15, 8, 50, 314, DateTimeKind.Local).AddTicks(514),
+                            DoB = new DateTime(1992, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "alice.admin@example.com",
+                            FullName = "Alice Admin",
+                            Gender = "Female",
                             IsEmailVerified = true,
-                            Password = "hashed-password",
-                            PasswordSalt = "random-salt",
-                            Phone = "0123456789",
-                            ProfileImage = "",
+                            Password = "P@ssw0rd!",
+                            Phone = "0901234567",
+                            ProfileImage = "/img/users/alice.jpg",
+                            RoleID = 1,
+                            Status = "Active"
+                        },
+                        new
+                        {
+                            UserID = 2,
+                            Address = "456 Organizer Ave, Da Nang",
+                            DateJoined = new DateTime(2025, 6, 27, 15, 8, 50, 314, DateTimeKind.Local).AddTicks(521),
+                            DoB = new DateTime(1988, 7, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "bob.organizer@example.com",
+                            FullName = "Bob Organizer",
+                            Gender = "Male",
+                            IsEmailVerified = false,
+                            Password = "P@ssw0rd!",
+                            Phone = "0912345678",
+                            ProfileImage = "/img/users/bob.jpg",
                             RoleID = 2,
+                            Status = "Active"
+                        },
+                        new
+                        {
+                            UserID = 3,
+                            Address = "789 Participant Rd, Hanoi",
+                            DateJoined = new DateTime(2025, 6, 27, 15, 8, 50, 314, DateTimeKind.Local).AddTicks(524),
+                            DoB = new DateTime(2000, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "charlie.participant@example.com",
+                            FullName = "Charlie Participant",
+                            Gender = "Other",
+                            IsEmailVerified = true,
+                            Password = "P@ssw0rd!",
+                            Phone = "0923456789",
+                            ProfileImage = "/img/users/charlie.jpg",
+                            RoleID = 3,
                             Status = "Active"
                         });
                 });
@@ -619,6 +689,17 @@ namespace EventController.Migrations
                     b.Navigation("Organizer");
 
                     b.Navigation("Venue");
+                });
+
+            modelBuilder.Entity("EventController.Models.Entity.EmailVerificationToken", b =>
+                {
+                    b.HasOne("EventController.Models.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("EventController.Models.Entity.User", b =>
