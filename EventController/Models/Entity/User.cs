@@ -1,46 +1,51 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EventController.Models.Entity
 {
-        public class User
-        {
-            [Key]
-            public int UserID { get; set; }
+    public class User
+    {
+        [Key]
+        public int UserID { get; set; }
 
-            [Required, MaxLength(100)]
-            public string FullName { get; set; }
+        [Required, MaxLength(100)]
+        public string FullName { get; set; }
 
-            [Required, MaxLength(100)]
-            public string Email { get; set; }
+        [Required, MaxLength(100)]
+        public string Email { get; set; }
 
-            [Required]
-            public string Password { get; set; }
+        [Required]
+        public string Password { get; set; }
+        [NotMapped]
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
+        public string ConfirmPassword { get; set; }
 
-            public string PasswordSalt { get; set; }
+        [MaxLength(20)]
+        public string Phone { get; set; }
 
-            [MaxLength(20)]
-            public string Phone { get; set; }
+        [Required]
+        public int RoleID { get; set; }
 
-            [Required]
-            public int RoleID { get; set; }
+        public string Address { get; set; }
 
-            [ForeignKey("RoleID")]
-            public virtual Role Role { get; set; }
+        [ForeignKey("RoleID")]
+        public virtual Role Role { get; set; }
+        public string? ProfileImage { get; set; }
 
-            public string ProfileImage { get; set; }
+        public string Status { get; set; }  // could be enum or string
 
-            public string Status { get; set; }  // could be enum or string
+        public bool IsEmailVerified { get; set; }
 
-            public bool IsEmailVerified { get; set; }
+        public DateTime DateJoined { get; set; } = DateTime.Now;
 
-            public DateTime DateJoined { get; set; } = DateTime.Now;
+        public string Gender { get; set; }
 
-            public virtual ICollection<Event> OrganizedEvents { get; set; }
-            public virtual ICollection<Registration> Registrations { get; set; }
-            public virtual ICollection<Feedback> Feedbacks { get; set; }
-            public virtual ICollection<Notification> Notifications { get; set; }
+        public DateTime DoB { get; set; }
+
+        public virtual ICollection<Event> OrganizedEvents { get; set; }
+        public virtual ICollection<Registration> Registrations { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

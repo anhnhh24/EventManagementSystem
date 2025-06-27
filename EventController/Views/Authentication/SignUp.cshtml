@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+@using EventController.Models.DTO
+@model UserDTO
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -10,64 +13,75 @@
     <div class="container py-5" style="max-width: 600px;">
         <h2 class="text-center mb-4">Create an Account</h2>
 
-        <form>
+        <form method="post" asp-action="Register" asp-controller="Authentication">
             <!-- Full Name -->
             <div class="mb-3">
                 <label for="fullName" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="fullName" placeholder="Nguyen Van A" required>
+                <input type="text" class="form-control" id="fullName" placeholder="Nguyen Van A" asp-for="FullName" required>
             </div>
 
             <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="email" placeholder="you@example.com" required>
+                <input type="email" class="form-control" id="email" placeholder="you@example.com" asp-for="Email" required>
+            </div>
+
+            <!-- Role (hidden) -->
+            <div class="mb-3">
+                <label class="form-label">Select Role:</label><br />
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="roleID" id="roleUser" value="1" asp-for="RoleID">
+                    <label class="form-check-label" for="roleUser">User</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="roleID" id="roleOrganizer" value="2" asp-for="RoleID">
+                    <label class="form-check-label" for="roleOrganizer">Organizer</label>
+                </div>
             </div>
 
             <!-- Phone -->
             <div class="mb-3">
                 <label for="phone" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="phone" placeholder="0123456789">
+                <input type="text" class="form-control" id="phone" placeholder="0123456789" asp-for="Phone">
             </div>
 
             <!-- Gender -->
             <div class="mb-3">
                 <label class="form-label d-block">Gender</label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="genderMale" value="Male" required>
+                    <input class="form-check-input" type="radio" name="gender" id="genderMale" value="Male" asp-for="Gender" required>
                     <label class="form-check-label" for="genderMale">Male</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="Female" required>
+                    <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="Female" asp-for="Gender" required>
                     <label class="form-check-label" for="genderFemale">Female</label>
                 </div>
             </div>
 
             <!-- Address -->
             <div class="mb-3">
-                <label for="address" class="form-label">Address</label>
-                <textarea class="form-control" id="address" rows="2" placeholder="Enter your address here"></textarea>
+                <label for="address" class="form-label" >Address</label>
+                <textarea class="form-control" id="address" rows="2" placeholder="Enter your address here" asp-for="Address"></textarea>
             </div>
 
             <!-- Date of Birth -->
             <div class="mb-3">
                 <label for="dob" class="form-label">Date of Birth</label>
-                <input type="date" class="form-control" id="dob" required>
+                <input type="date" class="form-control" id="dob" asp-for="DoB" required>
             </div>
 
             <!-- Password -->
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+                    <input type="password" class="form-control" id="password" placeholder="Enter password" asp-for="Password" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="confirmPassword" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" placeholder="Repeat password" required>
+                    <label for="confirmPassword" class="form-label" >Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="Repeat password" asp-for="ConfirmPassword" required>
                 </div>
             </div>
 
-            <!-- Role (hidden) -->
-            <input type="hidden" id="roleID" value="3" />
 
             <!-- Submit -->
             <button type="submit" class="btn btn-primary w-100 mt-3">Sign Up</button>

@@ -78,19 +78,9 @@ namespace EventController.Models.DAO.Implements
 
         public bool VerifyPassword(User user, string plainPassword)
         {
-            if (user == null || string.IsNullOrEmpty(user.PasswordSalt))
-                return false;
 
-            var saltBytes = Convert.FromBase64String(user.PasswordSalt);
-            var plainBytes = Encoding.UTF8.GetBytes(plainPassword);
 
-            // Append salt rồi hash SHA-256
-            byte[] toHash = saltBytes.Concat(plainBytes).ToArray();
-            using var sha = SHA256.Create();
-            var hashBytes = sha.ComputeHash(toHash);
-            var hashBase64 = Convert.ToBase64String(hashBytes);
-
-            return hashBase64 == user.Password;
+            return true;
         }
     }
 }

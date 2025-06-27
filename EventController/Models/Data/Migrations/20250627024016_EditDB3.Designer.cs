@@ -4,6 +4,7 @@ using EventController.Models.Data.DBcontext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventController.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20250627024016_EditDB3")]
+    partial class EditDB3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,6 +272,7 @@ namespace EventController.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("ProfileImage")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleID")
@@ -289,7 +293,7 @@ namespace EventController.Migrations
                         {
                             UserID = 1,
                             Address = "123 Admin St, HCMC",
-                            DateJoined = new DateTime(2025, 6, 27, 12, 5, 16, 240, DateTimeKind.Local).AddTicks(3097),
+                            DateJoined = new DateTime(2025, 6, 27, 9, 40, 15, 750, DateTimeKind.Local).AddTicks(9089),
                             DoB = new DateTime(1992, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "alice.admin@example.com",
                             FullName = "Alice Admin",
@@ -305,7 +309,7 @@ namespace EventController.Migrations
                         {
                             UserID = 2,
                             Address = "456 Organizer Ave, Da Nang",
-                            DateJoined = new DateTime(2025, 6, 27, 12, 5, 16, 240, DateTimeKind.Local).AddTicks(3102),
+                            DateJoined = new DateTime(2025, 6, 27, 9, 40, 15, 750, DateTimeKind.Local).AddTicks(9094),
                             DoB = new DateTime(1988, 7, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "bob.organizer@example.com",
                             FullName = "Bob Organizer",
@@ -321,7 +325,7 @@ namespace EventController.Migrations
                         {
                             UserID = 3,
                             Address = "789 Participant Rd, Hanoi",
-                            DateJoined = new DateTime(2025, 6, 27, 12, 5, 16, 240, DateTimeKind.Local).AddTicks(3104),
+                            DateJoined = new DateTime(2025, 6, 27, 9, 40, 15, 750, DateTimeKind.Local).AddTicks(9097),
                             DoB = new DateTime(2000, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "charlie.participant@example.com",
                             FullName = "Charlie Participant",

@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -72,7 +73,7 @@
             <!-- Sign-up link -->
             <p class="text-center small mb-3">
                 Don't have an account?
-                <a href="signup.html">Sign Up</a>
+                <a asp-controller="Authentication" asp-action="SignUp">Sign Up</a>
             </p>
 
         </form>

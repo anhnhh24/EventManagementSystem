@@ -221,21 +221,55 @@ modelBuilder.Entity<Event>().HasData(
    );
 
             modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    UserID = 2,
-                    FullName = "Event Organizer",
-                    Email = "organizer@example.com",
-                    Password = "hashed-password",  // đặt đúng format
-                    PasswordSalt = "random-salt",
-                    Phone = "0123456789",
-                    RoleID = 2, // Organizer role
-                    IsEmailVerified = true,
-                    Status = "Active",
-                    DateJoined = DateTime.Now,
-                    ProfileImage = ""
-                }
-            );
+       new User
+       {
+           UserID = 1,
+           FullName = "Alice Admin",
+           Email = "alice.admin@example.com",
+           Password = "P@ssw0rd!",          // ⚠ replace with hashed value in production
+           Phone = "0901234567",
+           RoleID = 1,                    // Admin
+           Address = "123 Admin St, HCMC",
+           ProfileImage = "/img/users/alice.jpg",
+           Status = "Active",
+           IsEmailVerified = true,
+           DateJoined = DateTime.Now,
+           Gender = "Female",
+           DoB = new DateTime(1992, 3, 15)
+       },
+       new User
+       {
+           UserID = 2,
+           FullName = "Bob Organizer",
+           Email = "bob.organizer@example.com",
+           Password = "P@ssw0rd!",
+           Phone = "0912345678",
+           RoleID = 2,                    // Organizer
+           Address = "456 Organizer Ave, Da Nang",
+           ProfileImage = "/img/users/bob.jpg",
+           Status = "Active",
+           IsEmailVerified = false,
+           DateJoined = DateTime.Now,
+           Gender = "Male",
+           DoB = new DateTime(1988, 7, 21)
+       },
+       new User
+       {
+           UserID = 3,
+           FullName = "Charlie Participant",
+           Email = "charlie.participant@example.com",
+           Password = "P@ssw0rd!",
+           Phone = "0923456789",
+           RoleID = 3,                    // Participant
+           Address = "789 Participant Rd, Hanoi",
+           ProfileImage = "/img/users/charlie.jpg",
+           Status = "Active",
+           IsEmailVerified = true,
+           DateJoined = DateTime.Now,
+           Gender = "Other",
+           DoB = new DateTime(2000, 11, 5)
+       }
+   );
 
 
         }

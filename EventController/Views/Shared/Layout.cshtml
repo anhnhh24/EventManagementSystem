@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -35,8 +36,8 @@
                 </ul>
 
                 <div class="d-flex gap-2">
-                    <a href="@Url.Action("Login", "Account")" class="btn btn-outline-secondary btn-sm">Login</a>
-                    <a href="@Url.Action("Register", "Account")" class="btn btn-primary btn-sm">Sign up</a>
+                    <a asp-controller="Authentication" asp-action="SignIn" asp class="btn btn-outline-secondary btn-sm">Login</a>
+                    <a asp-controller="Authentication" asp-action="SignUp" class="btn btn-primary btn-sm">Sign up</a>
                 </div>
             </div>
         </div>
