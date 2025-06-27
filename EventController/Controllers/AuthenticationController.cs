@@ -30,13 +30,12 @@ namespace EventController.Controllers
 
                 if (existingUser == null || !_userDAO.VerifyPassword(existingUser, user.Password))
                 {
-                    ViewBag.Notification = "Email or password invalid";
-                    return View();                
+                        ViewBag.Error = "Email or password invalid";
+                        return View();
                 }
-
-                return RedirectToAction("Index", "Home");  
+                else
+                    return RedirectToAction("Index", "Home");
             }
-
             return View();
         }
 

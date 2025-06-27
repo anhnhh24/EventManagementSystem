@@ -80,8 +80,7 @@ namespace EventController.Models.DAO.Implements
         {
             var existingUser = _context.Users.FirstOrDefault(u => u.Email == user.Email);
             if (user == null) return false;
-            PasswordHelper.VerifyPassword(user.Password, plainPassword);
-            return true;
+            return PasswordHelper.VerifyPassword(user.Password, plainPassword);
         }
     }
 }
