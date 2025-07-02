@@ -1,11 +1,10 @@
-﻿using EventController.Models.DAO.Interfaces;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using EventController.Models.Data.DBcontext; 
 using EventController.Models.Entity;
 
 namespace EventController.Models.DAO.Implements
 {
-    public class VenueDAO : IVenueDAO
+    public class VenueDAO
     {
         private readonly DBContext _context;
 

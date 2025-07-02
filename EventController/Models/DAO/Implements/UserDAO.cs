@@ -1,5 +1,4 @@
-﻿using EventController.Models.DAO.Interfaces;
-using EventController.Models.Data.DBcontext;
+﻿using EventController.Models.Data.DBcontext;
 using EventController.Models.Entity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
@@ -7,7 +6,7 @@ using System.Text;
 
 namespace EventController.Models.DAO.Implements
 {
-    public class UserDAO : IUserDAO
+    public class UserDAO
     {
         private readonly DBContext _context;
 

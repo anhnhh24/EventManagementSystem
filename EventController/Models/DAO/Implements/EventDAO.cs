@@ -1,10 +1,9 @@
-﻿using EventController.Models.DAO.Interfaces;
-using EventController.Models.Data.DBcontext;
+﻿using EventController.Models.Data.DBcontext;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventController.Models.DAO.Implements
 {
-    public class EventDAO : IEventDAO
+    public class EventDAO
     {
         private readonly DBContext _context;
 
@@ -28,6 +27,7 @@ namespace EventController.Models.DAO.Implements
             return _context.Events
                            .Include(e => e.Category)
                            .Include(e => e.Organizer)
+                           .Include(e => e.Venue)
                            .FirstOrDefault(e => e.EventID == id);
         }
         public void AddEvent(Event evt)

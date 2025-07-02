@@ -31,5 +31,6 @@ namespace EventController.Models.DTO
         public string Gender { get; set; }
         public DateTime DoB { get; set; } 
         public string Address { get; set; }
+        public string? ProfileImage { get; set; }
     }
 }

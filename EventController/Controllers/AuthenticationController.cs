@@ -1,6 +1,8 @@
 ﻿using EventController.Models.DAO.Implements;
 using EventController.Models.DTO;
 using EventController.Models.Entity;
+using EventController.Util;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -30,11 +32,25 @@ namespace EventController.Controllers
 
                 if (existingUser == null || !_userDAO.VerifyPassword(existingUser, user.Password))
                 {
-                        ViewBag.Error = "Email or password invalid";
-                        return View();
+                    ViewBag.Error = "Email or password invalid";
+                    return View();
                 }
                 else
+                {
+                    UserDTO SessionUser = new UserDTO
+                    {
+                        FullName = existingUser.FullName,
+                        Email = existingUser.Email,
+                        Address = existingUser.Address,
+                        DoB = existingUser.DoB,
+                        Phone = existingUser.Phone,
+                        RoleID = existingUser.RoleID,
+                        ProfileImage = existingUser.ProfileImage
+                    };
+                    HttpContext.Session.SetObject("currentUser", SessionUser);
+                    
                     return RedirectToAction("Index", "Home");
+                }
             }
             return View();
         }
@@ -101,7 +117,13 @@ namespace EventController.Controllers
             return View("SignUp");
         }
 
+        [HttpPost]
+        public IActionResult LogOut()
+        {
+            HttpContext.Session.Clear();
 
+            return RedirectToAction("Index", "Home");
+        }
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             try

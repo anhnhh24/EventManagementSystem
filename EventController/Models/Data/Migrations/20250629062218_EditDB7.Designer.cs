@@ -4,6 +4,7 @@ using EventController.Models.Data.DBcontext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventController.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20250629062218_EditDB7")]
+    partial class EditDB7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,104 @@ namespace EventController.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Category", b =>
+                {
+                    b.Property<int>("CategoryID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryID"));
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CategoryID");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryID = 1,
+                            CategoryName = "Concert",
+                            Description = "Live music concerts and shows",
+                            Icon = "bi-music-note-beamed"
+                        },
+                        new
+                        {
+                            CategoryID = 2,
+                            CategoryName = "Workshop",
+                            Description = "Hands-on training & skill-building sessions",
+                            Icon = "bi-tools"
+                        },
+                        new
+                        {
+                            CategoryID = 3,
+                            CategoryName = "Seminar",
+                            Description = "Educational seminars and talks",
+                            Icon = "bi-mic"
+                        },
+                        new
+                        {
+                            CategoryID = 4,
+                            CategoryName = "Conference",
+                            Description = "Large-scale professional conferences",
+                            Icon = "bi-people"
+                        },
+                        new
+                        {
+                            CategoryID = 5,
+                            CategoryName = "Marathon",
+                            Description = "Running & endurance sport events",
+                            Icon = "bi-running"
+                        },
+                        new
+                        {
+                            CategoryID = 6,
+                            CategoryName = "Food Festival",
+                            Description = "Culinary fairs and tasting events",
+                            Icon = "bi-egg-fried"
+                        },
+                        new
+                        {
+                            CategoryID = 7,
+                            CategoryName = "Art Exhibition",
+                            Description = "Galleries and art showcases",
+                            Icon = "bi-brush"
+                        },
+                        new
+                        {
+                            CategoryID = 8,
+                            CategoryName = "Startup Pitch",
+                            Description = "Entrepreneurial pitch & demo days",
+                            Icon = "bi-lightbulb"
+                        },
+                        new
+                        {
+                            CategoryID = 9,
+                            CategoryName = "Charity Event",
+                            Description = "Fund-raising & community service",
+                            Icon = "bi-hand-heart"
+                        },
+                        new
+                        {
+                            CategoryID = 10,
+                            CategoryName = "Movie Night",
+                            Description = "Indoor / outdoor film screenings",
+                            Icon = "bi-film"
+                        });
+                });
 
             modelBuilder.Entity("Event", b =>
                 {
@@ -53,9 +154,6 @@ namespace EventController.Migrations
 
                     b.Property<int>("OrganizerID")
                         .HasColumnType("int");
-
-                    b.Property<long>("Price")
-                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
@@ -92,7 +190,6 @@ namespace EventController.Migrations
                             Location = "Grand Hall, District 1",
                             MaxAttendees = 2000,
                             OrganizerID = 2,
-                            Price = 0L,
                             StartTime = new DateTime(2025, 9, 1, 18, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Active",
                             Title = "HCMC Live Music Night",
@@ -108,7 +205,6 @@ namespace EventController.Migrations
                             Location = "Đà Nẵng Tech Park",
                             MaxAttendees = 120,
                             OrganizerID = 2,
-                            Price = 0L,
                             StartTime = new DateTime(2025, 9, 18, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Active",
                             Title = "Front-end Dev Bootcamp",
@@ -124,95 +220,10 @@ namespace EventController.Migrations
                             Location = "SECC, District 7",
                             MaxAttendees = 1500,
                             OrganizerID = 2,
-                            Price = 0L,
                             StartTime = new DateTime(2025, 11, 10, 8, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Upcoming",
                             Title = "AI Conference 2025",
                             VenueID = 3
-                        });
-                });
-
-            modelBuilder.Entity("EventCategory", b =>
-                {
-                    b.Property<int>("CategoryID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryID"));
-
-                    b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("CategoryID");
-
-                    b.ToTable("EventCategories");
-
-                    b.HasData(
-                        new
-                        {
-                            CategoryID = 1,
-                            CategoryName = "Concert",
-                            Description = "Live music concerts and shows"
-                        },
-                        new
-                        {
-                            CategoryID = 2,
-                            CategoryName = "Workshop",
-                            Description = "Hands-on training & skill-building sessions"
-                        },
-                        new
-                        {
-                            CategoryID = 3,
-                            CategoryName = "Seminar",
-                            Description = "Educational seminars and talks"
-                        },
-                        new
-                        {
-                            CategoryID = 4,
-                            CategoryName = "Conference",
-                            Description = "Large-scale professional conferences"
-                        },
-                        new
-                        {
-                            CategoryID = 5,
-                            CategoryName = "Marathon",
-                            Description = "Running & endurance sport events"
-                        },
-                        new
-                        {
-                            CategoryID = 6,
-                            CategoryName = "Food Festival",
-                            Description = "Culinary fairs and tasting events"
-                        },
-                        new
-                        {
-                            CategoryID = 7,
-                            CategoryName = "Art Exhibition",
-                            Description = "Galleries and art showcases"
-                        },
-                        new
-                        {
-                            CategoryID = 8,
-                            CategoryName = "Startup Pitch",
-                            Description = "Entrepreneurial pitch & demo days"
-                        },
-                        new
-                        {
-                            CategoryID = 9,
-                            CategoryName = "Charity Event",
-                            Description = "Fund-raising & community service"
-                        },
-                        new
-                        {
-                            CategoryID = 10,
-                            CategoryName = "Movie Night",
-                            Description = "Indoor / outdoor film screenings"
                         });
                 });
 
@@ -311,7 +322,7 @@ namespace EventController.Migrations
                         {
                             UserID = 1,
                             Address = "123 Admin St, HCMC",
-                            DateJoined = new DateTime(2025, 7, 2, 15, 52, 18, 64, DateTimeKind.Local).AddTicks(5690),
+                            DateJoined = new DateTime(2025, 6, 29, 13, 22, 16, 524, DateTimeKind.Local).AddTicks(7459),
                             DoB = new DateTime(1992, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "alice.admin@example.com",
                             FullName = "Alice Admin",
@@ -327,7 +338,7 @@ namespace EventController.Migrations
                         {
                             UserID = 2,
                             Address = "456 Organizer Ave, Da Nang",
-                            DateJoined = new DateTime(2025, 7, 2, 15, 52, 18, 64, DateTimeKind.Local).AddTicks(5695),
+                            DateJoined = new DateTime(2025, 6, 29, 13, 22, 16, 524, DateTimeKind.Local).AddTicks(7463),
                             DoB = new DateTime(1988, 7, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "bob.organizer@example.com",
                             FullName = "Bob Organizer",
@@ -343,7 +354,7 @@ namespace EventController.Migrations
                         {
                             UserID = 3,
                             Address = "789 Participant Rd, Hanoi",
-                            DateJoined = new DateTime(2025, 7, 2, 15, 52, 18, 64, DateTimeKind.Local).AddTicks(5698),
+                            DateJoined = new DateTime(2025, 6, 29, 13, 22, 16, 524, DateTimeKind.Local).AddTicks(7466),
                             DoB = new DateTime(2000, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "charlie.participant@example.com",
                             FullName = "Charlie Participant",
@@ -355,31 +366,6 @@ namespace EventController.Migrations
                             RoleID = 3,
                             Status = "Active"
                         });
-                });
-
-            modelBuilder.Entity("EventNote", b =>
-                {
-                    b.Property<int>("NoteID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NoteID"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EventID")
-                        .HasColumnType("int");
-
-                    b.HasKey("NoteID");
-
-                    b.HasIndex("EventID");
-
-                    b.ToTable("EventNotes");
                 });
 
             modelBuilder.Entity("Feedback", b =>
@@ -423,17 +409,21 @@ namespace EventController.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationID"));
 
-                    b.Property<int>("EventID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsSent")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("SendAt")
+                    b.Property<int?>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SentTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("UserID")
@@ -649,7 +639,7 @@ namespace EventController.Migrations
 
             modelBuilder.Entity("Event", b =>
                 {
-                    b.HasOne("EventCategory", "Category")
+                    b.HasOne("Category", "Category")
                         .WithMany("Events")
                         .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -694,17 +684,6 @@ namespace EventController.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("EventNote", b =>
-                {
-                    b.HasOne("Event", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-                });
-
             modelBuilder.Entity("Feedback", b =>
                 {
                     b.HasOne("Event", "Event")
@@ -729,8 +708,7 @@ namespace EventController.Migrations
                     b.HasOne("Event", "Event")
                         .WithMany("Notifications")
                         .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("EventController.Models.Entity.User", "User")
                         .WithMany("Notifications")
@@ -773,6 +751,11 @@ namespace EventController.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Category", b =>
+                {
+                    b.Navigation("Events");
+                });
+
             modelBuilder.Entity("Event", b =>
                 {
                     b.Navigation("Feedbacks");
@@ -780,11 +763,6 @@ namespace EventController.Migrations
                     b.Navigation("Notifications");
 
                     b.Navigation("Registrations");
-                });
-
-            modelBuilder.Entity("EventCategory", b =>
-                {
-                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("EventController.Models.Entity.User", b =>

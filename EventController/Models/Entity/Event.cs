@@ -39,13 +39,12 @@ public class Event
     public int CategoryID { get; set; }
 
     [ForeignKey("CategoryID")]
-    public virtual Category Category { get; set; }
+    public virtual EventCategory Category { get; set; }
 
     public string Status { get; set; }
+    public long Price { get; set; }
 
     public virtual ICollection<Registration> Registrations { get; set; }
-
-    public virtual ICollection<EventMedia> EventMedias { get; set; }
 
     public virtual ICollection<Feedback> Feedbacks { get; set; }
 

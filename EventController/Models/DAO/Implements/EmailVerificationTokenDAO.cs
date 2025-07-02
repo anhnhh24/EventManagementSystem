@@ -1,11 +1,10 @@
-﻿using EventController.Models.DAO.Interfaces;
-using EventController.Models.Data.DBcontext;
+﻿using EventController.Models.Data.DBcontext;
 using EventController.Models.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventController.Models.DAO.Implements
 {
-    public class EmailVerificationTokenDAO : IEmailVerificationTokenDAO
+    public class EmailVerificationTokenDAO
     {
         private readonly DBContext _context;
 

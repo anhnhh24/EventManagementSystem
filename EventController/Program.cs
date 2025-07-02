@@ -7,12 +7,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddDbContext<DBContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("MyDatabase")));
 
 
-builder.Services.AddScoped<CategoryDAO>();
+builder.Services.AddScoped<EventCategoryDAO>();
 builder.Services.AddScoped<EventDAO>();
 builder.Services.AddScoped<UserDAO>();
 builder.Services.AddScoped<VenueDAO>();
@@ -35,6 +44,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSession(); 
 
 app.MapControllerRoute(
     name: "default",

@@ -73,9 +73,9 @@
                         <!-- Header: Event Name + Share -->
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h5 class="event-title mb-1">Name of the Event</h5>
+                                <h5 class="event-title mb-1">@ViewBag.Event.Title</h5>
                                 <p class="fst-italic text-muted mb-0">Artist</p>
-                                <p class="event-meta">Music • English • 02h 45m</p>
+                                <p class="event-meta">@ViewBag.Event.Title • @ViewBag.Event.Category.CategoryName</p>
                             </div>
                             <button class="btn btn-sm btn-light">
                                 <i class="bi bi-share"></i>
@@ -84,10 +84,10 @@
 
                         <!-- Info -->
                         <div class="mt-3">
-                            <p class="mb-1"><strong>Date:</strong> 01 Sep 2025</p>
-                            <p class="mb-1"><strong>Location:</strong> Grand Hall, District 1</p>
-                            <p class="price mb-2">₫ 1.999.000 onwards</p>
-                        </div>  
+                            <p class="mb-1"><strong>Date:</strong> @ViewBag.Event.StartTime</p>
+                            <p class="mb-1"><strong>Location:</strong> @ViewBag.Event.Location</p>
+                            <p class="price mb-2">Price: @ViewBag.Event.Price</p>
+                        </div>
 
                         <!-- CTA -->
                         <div class="mt-auto">
@@ -103,8 +103,7 @@
         <section class="my-4">
             <h5 class="section-title">About</h5>
             <p>
-                The cultural phenomenon continues as pop icon Taylor Swift performs hit songs
-                in a once-in-a-lifetime concert experience.
+                @ViewBag.Event.Description
             </p>
         </section>
 
@@ -114,9 +113,8 @@
             <div class="col-md-4">
                 <div class="bg-light rounded p-3 h-100">
                     <h6 class="section-title">Event Guide</h6>
-                    <p><i class="bi bi-person-fill guide-icon"></i>Age: 5+</p>
-                    <p><i class="bi bi-translate guide-icon"></i>Language: English</p>
-                    <p><i class="bi bi-broadcast guide-icon"></i>Performance: Live</p>
+                    <p><i class="bi bi-person-fill guide-icon"></i>Max Attendee: @ViewBag.Event.MaxAttendees</p>
+                    <p><i class="bi bi-translate guide-icon"></i>End time: @ViewBag.Event.EndTime</p>
                 </div>
             </div>
 
@@ -124,11 +122,11 @@
             <div class="col-md-4">
                 <div class="bg-light rounded p-3 h-100">
                     <h6 class="section-title">Venue</h6>
-                    <p class="mb-1"><strong>Location:</strong> Grand Hall</p>
-                    <p class="mb-1">Area: District 1</p>
-                    <p class="mb-1">City: Ho Chi Minh City</p>
-                    <p class="mb-1">Date: 01 Sep 2025</p>
-                    <p class="mb-0">Time: 20:00</p>
+                    <p class="mb-1"><strong>Location:</strong> @ViewBag.Event.Venue.Name</p>
+                    <p class="mb-1">Address: @ViewBag.Event.Venue.Address</p>
+                    <p class="mb-1">Capacity: @ViewBag.Event.Venue.Description</p>
+                    <p class="mb-1">Start Time: @ViewBag.Event.StartTime</p>
+                    <p class="mb-0">End Time: @ViewBag.Event.EndTime</p>
                 </div>
             </div>
 
@@ -144,18 +142,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- ========== SOCIAL SHARE ========== -->
-        <section class="mt-4">
-            <h6 class="section-title">Share on</h6>
-            <div class="social-icons">
-                <i class="bi bi-facebook"></i>
-                <i class="bi bi-instagram"></i>
-                <i class="bi bi-messenger"></i>
-                <i class="bi bi-whatsapp"></i>
-                <i class="bi bi-snapchat"></i>
-            </div>
-        </section>
 
     </div>
 

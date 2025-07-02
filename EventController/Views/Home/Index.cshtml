@@ -71,7 +71,7 @@
             <form class="row gy-2 gx-3 justify-content-center">
                 <div class="col-md-3">
 
-                    <select class="form-select" aria-label="Select category" name="Category">
+                    <select class="form-select" aria-label="Select category" name="Category" onchange="this.form.submit()">
                         <option value="All">All categories</option>
                         @foreach (var item in ViewBag.listCategory)
                         {
@@ -100,17 +100,21 @@
                 <a href="#" class="small text-decoration-none">See all</a>
             </div>
 
-            <div class="row g-4 text-center">
+            <div class="row g-3">
                 @foreach (var item in ((IEnumerable<dynamic>)ViewBag.listCategory).Take(6))
                 {
-                    <div class="col-4 col-md-2">
-                        <i class="@item.Icon mb-2"></i>
-                        <p class="mb-0 small">@item.CategoryName</p>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="card text-center border-0 shadow-sm h-100">
+                            <div class="card-body d-flex align-items-center justify-content-center p-3">
+                                <p class="mb-0 fw-semibold">@item.CategoryName</p>
+                            </div>
+                        </div>
                     </div>
                 }
             </div>
         </div>
     </section>
+
 
     <!-- ========== POPULAR VENUES ========== -->
     <section class="pb-5 bg-light">
@@ -180,7 +184,7 @@
                                                 <i class="bi bi-calendar-event"></i> @item.StartTime.ToString("dd MMM yyyy") <br />
                                                 <i class="bi bi-geo-alt"></i> @item.Location
                                             </p>
-                                            <a href="/Event/Details/@item.EventID" class="btn btn-outline-primary mt-auto btn-sm">View Details</a>
+                                            <a asp-controller="Event" asp-action="Index" asp-route-id="@item.EventID" class="btn btn-outline-primary mt-auto btn-sm">View Details</a>
                                         </div>
                                     </div>
                                 </div>

@@ -1,10 +1,17 @@
-﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@using EventController.Util
+@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+@using EventController.Models.DTO
+@model UserDTO
+@{
+    var user = Context.Session.GetObject<UserDTO>("currentUser") ?? new UserDTO();
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Event Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -34,11 +41,53 @@
                     <li class="nav-item"><a class="nav-link" asp-controller="About" asp-action="Index">About</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Contact" asp-action="Index">Contact</a></li>
                 </ul>
+                @{
+                    // fallback avatar
+                    string avatar = string.IsNullOrEmpty(user.ProfileImage)
+                    ? "/img/default-avatar.png"
+                    : user.ProfileImage;
+                }
 
-                <div class="d-flex gap-2">
-                    <a asp-controller="Authentication" asp-action="SignIn" asp class="btn btn-outline-secondary btn-sm">Login</a>
-                    <a asp-controller="Authentication" asp-action="SignUp" class="btn btn-primary btn-sm">Sign up</a>
-                </div>
+                @if (!string.IsNullOrEmpty(user.Email))
+                {
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fw-semibold text-dark">Welcome, @user.FullName!</span>
+
+                        <div class="dropdown">
+                            <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                               href="#" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" role="button">
+                                <img src="@avatar"
+                                     alt="avatar"
+                                     style="width: 36px; height: 36px; object-fit: cover; border-radius: 50%;" />
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userMenu">
+                                <li class="px-3 py-2">
+                                    <span class="fw-semibold d-block">@user.FullName</span>
+                                    <small class="text-muted">@user.Email</small>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Profile</a></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">Change Password</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <form asp-controller="Authentication" asp-action="LogOut" method="post" class="px-3">
+                                        <button type="submit" class="btn btn-link dropdown-item">Log out</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Authentication" asp-action="SignIn" class="btn btn-outline-secondary btn-sm">Login</a>
+                        <a asp-controller="Authentication" asp-action="SignUp" class="btn btn-primary btn-sm">Sign up</a>
+                    </div>
+                }
+
+
             </div>
         </div>
     </nav>
@@ -61,3 +110,12 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const el = document.getElementById("userMenu");
+        if (el) {
+            const dd = new bootstrap.Dropdown(el);
+            console.log("Dropdown wired", dd);
+        }
+    });
+</script>

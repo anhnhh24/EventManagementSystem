@@ -11,7 +11,9 @@ namespace EventController.Models.Data.DBcontext
         public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<EventCategory> EventCategories { get; set; }
+        public DbSet<EventNote> EventNotes { get; set; }
+
         public DbSet<Role> Roles { get; set; }
         public DbSet<Registration> Registrations { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -69,77 +71,67 @@ namespace EventController.Models.Data.DBcontext
                 .HasForeignKey<Payment>(p => p.RegistrationID)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Category>().HasData(
+            modelBuilder.Entity<EventCategory>().HasData(
 
-                new Category
+                new EventCategory
                 {
                     CategoryID = 1,
                     CategoryName = "Concert",
-                    Description = "Live music concerts and shows",
-                    Icon = "bi-music-note-beamed"
+                    Description = "Live music concerts and shows"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 2,
                     CategoryName = "Workshop",
-                    Description = "Hands-on training & skill-building sessions",
-                    Icon = "bi-tools"
+                    Description = "Hands-on training & skill-building sessions"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 3,
                     CategoryName = "Seminar",
-                    Description = "Educational seminars and talks",
-                    Icon = "bi-mic"
+                    Description = "Educational seminars and talks"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 4,
                     CategoryName = "Conference",
-                    Description = "Large-scale professional conferences",
-                    Icon = "bi-people"
+                    Description = "Large-scale professional conferences"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 5,
                     CategoryName = "Marathon",
-                    Description = "Running & endurance sport events",
-                    Icon = "bi-running"
+                    Description = "Running & endurance sport events"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 6,
                     CategoryName = "Food Festival",
-                    Description = "Culinary fairs and tasting events",
-                    Icon = "bi-egg-fried"
+                    Description = "Culinary fairs and tasting events"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 7,
                     CategoryName = "Art Exhibition",
-                    Description = "Galleries and art showcases",
-                    Icon = "bi-brush"
+                    Description = "Galleries and art showcases"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 8,
                     CategoryName = "Startup Pitch",
-                    Description = "Entrepreneurial pitch & demo days",
-                    Icon = "bi-lightbulb"
+                    Description = "Entrepreneurial pitch & demo days"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 9,
                     CategoryName = "Charity Event",
-                    Description = "Fund-raising & community service",
-                    Icon = "bi-hand-heart"
+                    Description = "Fund-raising & community service"
                 },
-                new Category
+                new EventCategory
                 {
                     CategoryID = 10,
                     CategoryName = "Movie Night",
-                    Description = "Indoor / outdoor film screenings",
-                    Icon = "bi-film"
+                    Description = "Indoor / outdoor film screenings"
                 }
             );
 modelBuilder.Entity<Event>().HasData(
