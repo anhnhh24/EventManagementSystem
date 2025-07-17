@@ -17,8 +17,8 @@ public class Event
 
     [Required]
     public DateTime EndTime { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public string Location { get; set; }
 
     public int? VenueID { get; set; }
 
@@ -32,6 +32,8 @@ public class Event
     public virtual User Organizer { get; set; }
 
     public int? MaxAttendees { get; set; }
+
+    public int? CurrentAttendees { get; set; }
 
     public string ImageUrl { get; set; }
 

@@ -1,0 +1,97 @@
+﻿@model EventViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-4 text-primary"><i class="bi bi-calendar-plus"></i> Create New Event</h2>
+
+    <form asp-action="CreateEvent" method="post" class="needs-validation" novalidate>
+        <div class="row g-4">
+
+            <!-- Event Details Card -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light fw-semibold">📝 Event Details</div>
+                    <div class="card-body">
+                        <label asp-for="EventImage" class="form-label">Event Image</label>
+                        <input asp-for="EventImage" type="file" class="form-control mb-3" accept="image/*" />
+                        <span asp-validation-for="EventImage" class="text-danger small"></span>
+
+
+                        <label asp-for="Title" class="form-label">Event Name</label>
+                        <input asp-for="Title" class="form-control mb-3" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control mb-3" rows="8" required></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light fw-semibold">⚙️ Settings</div>
+                    <div class="card-body">
+                        <!-- Start & End Time -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label asp-for="StartTime" class="form-label">Start</label>
+                                <input asp-for="StartTime" type="datetime-local" class="form-control" required />
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="EndTime" class="form-label">End</label>
+                                <input asp-for="EndTime" type="datetime-local" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <!-- Category & Venue -->
+                        <label class="form-label">Category</label>
+                        <select asp-for="CategoryID" class="form-select mb-3" required>
+                            <option value="">-- Select Category --</option>
+                            @foreach (var cat in ViewBag.listCategory)
+                            {
+                                <option value="@cat.CategoryID">@cat.CategoryName</option>
+                            }
+                        </select>
+
+                        <label class="form-label">Venue</label>
+                        <select asp-for="VenueID" class="form-select mb-3" required>
+                            <option value="">-- Select Venue --</option>
+                            @foreach (var loc in ViewBag.listVenue)
+                            {
+                                <option value="@loc.VenueID">@loc.Name</option>
+                            }
+                        </select>
+
+                        <!-- Capacity & Price -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label asp-for="MaxAttendees" class="form-label">Capacity</label>
+                                <input asp-for="MaxAttendees" type="number" min="1" class="form-control" required />
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="Price" class="form-label">Price (₫)</label>
+                                <input asp-for="Price" type="number" min="0" class="form-control" />
+                                <small class="text-muted">0 = Free</small>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle me-1"></i> Create Event
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>

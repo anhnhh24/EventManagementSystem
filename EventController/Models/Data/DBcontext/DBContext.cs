@@ -12,8 +12,7 @@ namespace EventController.Models.Data.DBcontext
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<EventCategory> EventCategories { get; set; }
-        public DbSet<EventNote> EventNotes { get; set; }
-
+        public DbSet<Bill> Bills { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Registration> Registrations { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -66,10 +65,11 @@ namespace EventController.Models.Data.DBcontext
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Payment>()
-                .HasOne(p => p.Registration)
-                .WithOne(r => r.Payment)
-                .HasForeignKey<Payment>(p => p.RegistrationID)
+                .HasOne(p => p.Bill)
+                .WithOne(b => b.Payment)
+                .HasForeignKey<Payment>(p => p.BillID)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             modelBuilder.Entity<EventCategory>().HasData(
 
@@ -134,53 +134,144 @@ namespace EventController.Models.Data.DBcontext
                     Description = "Indoor / outdoor film screenings"
                 }
             );
-modelBuilder.Entity<Event>().HasData(
-    new Event
-    {
-        EventID = 1,
-        Title = "HCMC Live Music Night",
-        Description = "Top V-Pop artists live on stage.",
-        StartTime = new DateTime(2025, 9, 1, 18, 0, 0),
-        EndTime = new DateTime(2025, 9, 1, 23, 0, 0),
-        Location = "Grand Hall, District 1",
-        VenueID = 1,
-        OrganizerID = 2,      // make sure UserID = 2 exists
-        MaxAttendees = 2000,
-        ImageUrl = "/img/events/music-night.jpg",
-        CategoryID = 1,      // Concert
-        Status = "Active"
-    },
-    new Event
-    {
-        EventID = 2,
-        Title = "Front-end Dev Bootcamp",
-        Description = "Hands-on HTML / CSS / JS & React in 5 days.",
-        StartTime = new DateTime(2025, 9, 18, 9, 0, 0),
-        EndTime = new DateTime(2025, 9, 22, 17, 0, 0),
-        Location = "Đà Nẵng Tech Park",
-        VenueID = 2,
-        OrganizerID = 2,
-        MaxAttendees = 120,
-        ImageUrl = "/img/events/frontend-bootcamp.jpg",
-        CategoryID = 2,      // Workshop
-        Status = "Active"
-    },
-    new Event
-    {
-        EventID = 3,
-        Title = "AI Conference 2025",
-        Description = "Latest AI research & enterprise applications.",
-        StartTime = new DateTime(2025, 11, 10, 8, 0, 0),
-        EndTime = new DateTime(2025, 11, 12, 18, 0, 0),
-        Location = "SECC, District 7",
-        VenueID = 3,
-        OrganizerID = 2,
-        MaxAttendees = 1500,
-        ImageUrl = "/img/events/ai-conf.jpg",
-        CategoryID = 4,      // Conference
-        Status = "Upcoming"
-    }
-);
+            modelBuilder.Entity<Event>().HasData(
+            new Event
+            {
+                EventID = 2,
+                Title = "Mindfulness Seminar",
+                Description = "An evening talk on mindfulness & wellbeing.",
+                StartTime = new DateTime(2025, 10, 12, 19, 0, 0),
+                EndTime = new DateTime(2025, 10, 12, 21, 0, 0),
+                VenueID = 1,
+                Price = 1900000,
+                OrganizerID = 2,
+                MaxAttendees = 300,
+                ImageUrl = "/img/events/mindfulness.jpg",
+                CategoryID = 3,
+                Status = "Upcoming"
+            },
+            new Event
+            {
+                EventID = 3,
+                Title = "AI Conference 2025",
+                Description = "Latest AI research & enterprise applications.",
+                StartTime = new DateTime(2025, 11, 10, 8, 0, 0),
+                EndTime = new DateTime(2025, 11, 12, 18, 0, 0),
+                VenueID = 3,
+                OrganizerID = 2,
+                Price = 1900000,
+                MaxAttendees = 1500,
+                ImageUrl = "/img/events/ai-conf.jpg",
+                CategoryID = 4,
+                Status = "Upcoming"
+            },
+            new Event
+            {
+                EventID = 4,
+                Title = "Charity Run 2025",
+                Description = "5 km charity run for children's hospitals.",
+                StartTime = new DateTime(2025, 10, 5, 6, 0, 0),
+                EndTime = new DateTime(2025, 10, 5, 11, 0, 0),
+                VenueID = 1,
+                Price = 1900000,
+                OrganizerID = 2,
+                MaxAttendees = 5000,
+                ImageUrl = "/img/events/charity-run.jpg",
+                CategoryID = 5,
+                Status = "Active"
+            },
+            new Event
+            {
+                EventID = 5,
+                Title = "HCM Street Food Fest",
+                Description = "Taste 100+ dishes from local vendors.",
+                StartTime = new DateTime(2025, 8, 20, 10, 0, 0),
+                EndTime = new DateTime(2025, 8, 22, 22, 0, 0),
+                VenueID = 1,
+                OrganizerID = 2,
+                Price = 1900000,
+                MaxAttendees = 8000,
+                ImageUrl = "/img/events/food-fest.jpg",
+                CategoryID = 6,
+                Status = "Active"
+            },
+            new Event
+            {
+                EventID = 6,
+                Title = "Modern Art Expo",
+                Description = "Showcase of contemporary Vietnamese artists.",
+                StartTime = new DateTime(2025, 7, 1, 10, 0, 0),
+                EndTime = new DateTime(2025, 7, 30, 20, 0, 0),
+                VenueID = 1,
+                OrganizerID = 2,
+                MaxAttendees = 300,
+                Price = 1900000,
+                ImageUrl = "/img/events/art-expo.jpg",
+                CategoryID = 7,
+                Status = "Active"
+            },
+            new Event
+            {
+                EventID = 7,
+                Title = "Startup Demo Day",
+                Description = "Pitch session for early‑stage startups.",
+                StartTime = new DateTime(2025, 9, 15, 14, 0, 0),
+                EndTime = new DateTime(2025, 9, 15, 18, 0, 0),
+                VenueID = 2,
+                OrganizerID = 2,
+                MaxAttendees = 200,
+                Price = 1900000,
+                ImageUrl = "/img/events/demo-day.jpg",
+                CategoryID = 8,
+                Status = "Upcoming"
+            },
+            new Event
+            {
+                EventID = 8,
+                Title = "Gala Dinner for Hope",
+                Description = "Fund‑raising dinner with live auction.",
+                StartTime = new DateTime(2025, 12, 12, 18, 30, 0),
+                EndTime = new DateTime(2025, 12, 12, 22, 0, 0),
+                VenueID = 1,
+                OrganizerID = 2,
+                Price = 1900000,
+                MaxAttendees = 400,
+                ImageUrl = "/img/events/gala.jpg",
+                CategoryID = 9,
+                Status = "Upcoming"
+            },
+            new Event
+            {
+                EventID = 9,
+                Title = "Outdoor Movie Night – Classic Hits",
+                Description = "Enjoy a classic under the stars.",
+                StartTime = new DateTime(2025, 6, 28, 19, 30, 0),
+                EndTime = new DateTime(2025, 6, 28, 22, 0, 0),
+                VenueID = 1,
+                OrganizerID = 2,
+                MaxAttendees = 1000,
+                Price = 1900000,
+                ImageUrl = "/img/events/movie-night.jpg",
+                CategoryID = 10,
+                Status = "Active"
+            },
+            new Event
+            {
+                EventID = 10,
+                Title = "Design Thinking Workshop",
+                Description = "Learn to solve problems creatively.",
+                StartTime = new DateTime(2025, 8, 25, 9, 0, 0),
+                EndTime = new DateTime(2025, 8, 25, 17, 0, 0),
+                VenueID = 2,
+                OrganizerID = 2,
+                MaxAttendees = 60,
+                Price = 1900000,
+                ImageUrl = "/img/events/design-thinking.jpg",
+                CategoryID = 2,
+                Status = "Active"
+            }
+            );
+
 
             modelBuilder.Entity<Venue>().HasData(
        new Venue

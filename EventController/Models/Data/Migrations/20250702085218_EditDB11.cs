@@ -11,34 +11,6 @@ namespace EventController.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<long>(
-                name: "Price",
-                table: "Events",
-                type: "bigint",
-                nullable: false,
-                defaultValue: 0L);
-
-            migrationBuilder.UpdateData(
-                table: "Events",
-                keyColumn: "EventID",
-                keyValue: 1,
-                column: "Price",
-                value: 0L);
-
-            migrationBuilder.UpdateData(
-                table: "Events",
-                keyColumn: "EventID",
-                keyValue: 2,
-                column: "Price",
-                value: 0L);
-
-            migrationBuilder.UpdateData(
-                table: "Events",
-                keyColumn: "EventID",
-                keyValue: 3,
-                column: "Price",
-                value: 0L);
-
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "UserID",
@@ -64,9 +36,6 @@ namespace EventController.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Price",
-                table: "Events");
 
             migrationBuilder.UpdateData(
                 table: "Users",

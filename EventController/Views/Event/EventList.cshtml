@@ -38,66 +38,75 @@
 <body>
 
     <div class="container py-5">
-
         <h3 class="mb-4 fw-bold">🎫 All Events (List View)</h3>
 
-        <!-- 🔍 Filter Section -->
-        <div class="row g-3 mb-4">
+        <!-- 🔍 Filter Form -->
+        <form method="get" asp-action="EventList" class="row g-3 mb-4">
             <div class="col-md-4">
-                <select class="form-select">
-                    <option selected>All Locations</option>
-                    <option>Ho Chi Minh City</option>
-                    <option>Hanoi</option>
-                    <option>Da Nang</option>
+                <select class="form-select" name="location">
+                    <option value="">All Locations</option>
+                    @foreach (var loc in ViewBag.listVenue)
+                    {
+                        <option value="@loc.VenueID">@loc.Name</option>
+                    }
                 </select>
             </div>
             <div class="col-md-4">
-                <input type="date" class="form-control" />
+            <input type="date" name="startDate"
+                   class="form-control"
+                   value="@ViewBag.SelectedDate" />
             </div>
             <div class="col-md-4">
-                <select class="form-select">
-                    <option selected>All Categories</option>
-                    <option>Music</option>
-                    <option>Workshop</option>
-                    <option>Technology</option>
-                    <option>Arts</option>
+                <select class="form-select" name="categoryId">
+                    <option value="">All Categories</option>
+                    @foreach (var cat in ViewBag.listCategory)
+                    {
+                        <option value="@cat.CategoryID">@cat.CategoryName</option>
+                    }
                 </select>
             </div>
-        </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
 
         <!-- 📋 Event List Items -->
         <div class="vstack gap-4">
-
-            <!-- List Item -->
-            @foreach(var item in ViewBag.EventList){
+            @foreach (var item in ViewBag.listEvent)
+            {
                 <div class="event-list-item d-flex align-items-start gap-3">
-                    <img src="https://via.placeholder.com/150x100" class="event-image" alt="event" />
-                <div class="flex-grow-1">
-                    <h5 class="fw-bold mb-1">🎵 HCMC Live Music Night</h5>
-                    <span class="badge bg-primary badge-category mb-2">Music</span>
-                    <p class="mb-1"><i class="bi bi-geo-alt"></i> Grand Hall, District 1</p>
-                    <p class="mb-1"><i class="bi bi-calendar-event"></i> 01 Sep 2025</p>
-                    <p class="mb-2 text-muted">An incredible music festival bringing top Vietnamese and international artists together in the heart of Saigon.</p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">View Details</a>
+                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/150x100" : item.ImageUrl)"
+                         class="event-image" alt="event" />
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold mb-1">@item.Title</h5>
+                        <span class="badge bg-primary mb-2">@item.Category?.CategoryName</span>
+                        <p class="mb-1"><i class="bi bi-geo-alt"></i> @item.Location</p>
+                        <p class="mb-1"><i class="bi bi-calendar-event"></i> @item.StartTime.ToString("dd MMM yyyy")</p>
+                        <p class="mb-2 text-muted">
+                            @item.Description?.Substring(0, Math.Min(120, item.Description?.Length ?? 0))...
+                        </p>
+                        <a asp-controller="Event"
+                           asp-action="Index"
+                           asp-route-id="@item.EventID"
+                           class="btn btn-sm btn-outline-primary">View Details</a>
+                    </div>
                 </div>
-            </div>
             }
-
-            <!-- Add more items as needed -->
-
         </div>
 
         <!-- 🔢 Pagination -->
         <nav class="mt-5">
-            <ul class="pagination">
-                <li class="page-item disabled"><a class="page-link">Previous</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="EventList"
+                           asp-route-page="@i">@i</a>
+                    </li>
+                }
             </ul>
         </nav>
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

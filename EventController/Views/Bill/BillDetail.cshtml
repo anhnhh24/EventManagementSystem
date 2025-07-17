@@ -1,0 +1,61 @@
+﻿@model BillDetailViewModel
+@{
+    ViewBag.Title = $"Invoice Detail #{Model.BillID}";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <h2 class="mb-3">🧾 Invoice Detail <span class="text-muted">#@Model.BillID</span></h2>
+
+            <dl class="row">
+                <dt class="col-sm-3">🗓 Created At:</dt>
+                <dd class="col-sm-9">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                <dt class="col-sm-3">📌 Status:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-success">
+                        @Model.Status
+                    </span>
+                </dd>
+
+                <dt class="col-sm-3">💰 Total Amount:</dt>
+                <dd class="col-sm-9">@Model.TotalAmount.ToString("N0") VND</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body">
+            <h4 class="mb-3">📅 Registered Events</h4>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>🎫 Event</th>
+                            <th>🔢 Quantity</th>
+                            <th>💵 Subtotal</th>
+                            <th>📌 Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.Registrations)
+                        {
+                            <tr>
+                                <td>@r.EventTitle</td>
+                                <td>@r.Quantity</td>
+                                <td>@r.Total.ToString("N0") VND</td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        @r.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

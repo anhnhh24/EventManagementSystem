@@ -20,13 +20,15 @@ builder.Services.AddDbContext<DBContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("MyDatabase")));
 
-
+builder.Services.AddHostedService<EventCheckerService>();
 builder.Services.AddScoped<EventCategoryDAO>();
 builder.Services.AddScoped<EventDAO>();
 builder.Services.AddScoped<UserDAO>();
 builder.Services.AddScoped<VenueDAO>();
+builder.Services.AddScoped<RegistrationDAO>();
 builder.Services.AddScoped<EmailVerificationTokenDAO>();
-
+builder.Services.AddScoped<PaymentDAO>();
+builder.Services.AddScoped<BillDAO>();
 
 var app = builder.Build();
 
@@ -43,9 +45,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
-
 app.UseSession(); 
+app.UseAuthorization();
+app.UseExceptionHandler("/Home/Privacy");
 
 app.MapControllerRoute(
     name: "default",

@@ -1,10 +1,8 @@
 ﻿using EventController.Models.DAO.Implements;
-using EventController.Models.DTO;
 using EventController.Models.Entity;
+using EventController.Models.ViewModels;
 using EventController.Util;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace EventController.Controllers
 {
@@ -24,7 +22,7 @@ namespace EventController.Controllers
         {
             return View();
         }
-        public IActionResult SignIn(UserDTO user)
+        public IActionResult SignIn(UserViewModel user)
         {
             if (!string.IsNullOrWhiteSpace(user.Email) && !string.IsNullOrWhiteSpace(user.Password))
             {
@@ -37,7 +35,7 @@ namespace EventController.Controllers
                 }
                 else
                 {
-                    UserDTO SessionUser = new UserDTO
+                    UserViewModel SessionUser = new UserViewModel
                     {
                         FullName = existingUser.FullName,
                         Email = existingUser.Email,
@@ -56,7 +54,7 @@ namespace EventController.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(UserDTO newUser)
+        public async Task<IActionResult> Register(UserViewModel newUser)
         {
             if (ModelState.IsValid)
             {

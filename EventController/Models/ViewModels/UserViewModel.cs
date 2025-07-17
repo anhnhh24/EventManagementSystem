@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
-namespace EventController.Models.DTO
+namespace EventController.Models.ViewModels
 {
-    public class UserDTO
+    public class UserViewModel
     {
         [Required, MaxLength(100)]
         public string FullName { get; set; }

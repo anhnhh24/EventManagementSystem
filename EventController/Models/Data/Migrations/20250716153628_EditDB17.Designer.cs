@@ -4,6 +4,7 @@ using EventController.Models.Data.DBcontext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventController.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20250716153628_EditDB17")]
+    partial class EditDB17
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,9 +65,6 @@ namespace EventController.Migrations
                     b.Property<int>("CategoryID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("CurrentAttendees")
                         .HasColumnType("int");
 
@@ -76,6 +76,10 @@ namespace EventController.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -117,10 +121,10 @@ namespace EventController.Migrations
                         {
                             EventID = 2,
                             CategoryID = 3,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "An evening talk on mindfulness & wellbeing.",
                             EndTime = new DateTime(2025, 10, 12, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/mindfulness.jpg",
+                            Location = "Riverside Hotel, HCM",
                             MaxAttendees = 300,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -133,10 +137,10 @@ namespace EventController.Migrations
                         {
                             EventID = 3,
                             CategoryID = 4,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Latest AI research & enterprise applications.",
                             EndTime = new DateTime(2025, 11, 12, 18, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/ai-conf.jpg",
+                            Location = "SECC, District 7",
                             MaxAttendees = 1500,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -149,10 +153,10 @@ namespace EventController.Migrations
                         {
                             EventID = 4,
                             CategoryID = 5,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "5 km charity run for children's hospitals.",
                             EndTime = new DateTime(2025, 10, 5, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/charity-run.jpg",
+                            Location = "Thảo Cầm Viên, HCM",
                             MaxAttendees = 5000,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -165,10 +169,10 @@ namespace EventController.Migrations
                         {
                             EventID = 5,
                             CategoryID = 6,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Taste 100+ dishes from local vendors.",
                             EndTime = new DateTime(2025, 8, 22, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/food-fest.jpg",
+                            Location = "September 23 Park",
                             MaxAttendees = 8000,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -181,10 +185,10 @@ namespace EventController.Migrations
                         {
                             EventID = 6,
                             CategoryID = 7,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Showcase of contemporary Vietnamese artists.",
                             EndTime = new DateTime(2025, 7, 30, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/art-expo.jpg",
+                            Location = "Fine Arts Museum, HCM",
                             MaxAttendees = 300,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -197,10 +201,10 @@ namespace EventController.Migrations
                         {
                             EventID = 7,
                             CategoryID = 8,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Pitch session for early‑stage startups.",
                             EndTime = new DateTime(2025, 9, 15, 18, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/demo-day.jpg",
+                            Location = "Đà Nẵng Tech Park",
                             MaxAttendees = 200,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -213,10 +217,10 @@ namespace EventController.Migrations
                         {
                             EventID = 8,
                             CategoryID = 9,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Fund‑raising dinner with live auction.",
                             EndTime = new DateTime(2025, 12, 12, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/gala.jpg",
+                            Location = "Saigon Opera House",
                             MaxAttendees = 400,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -229,10 +233,10 @@ namespace EventController.Migrations
                         {
                             EventID = 9,
                             CategoryID = 10,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Enjoy a classic under the stars.",
                             EndTime = new DateTime(2025, 6, 28, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/movie-night.jpg",
+                            Location = "Crescent Lake Park, D7",
                             MaxAttendees = 1000,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -245,10 +249,10 @@ namespace EventController.Migrations
                         {
                             EventID = 10,
                             CategoryID = 2,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Learn to solve problems creatively.",
                             EndTime = new DateTime(2025, 8, 25, 17, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/design-thinking.jpg",
+                            Location = "Indochina Riverside, Đà Nẵng",
                             MaxAttendees = 60,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -438,7 +442,7 @@ namespace EventController.Migrations
                         {
                             UserID = 1,
                             Address = "123 Admin St, HCMC",
-                            DateJoined = new DateTime(2025, 7, 17, 17, 52, 24, 173, DateTimeKind.Local).AddTicks(1793),
+                            DateJoined = new DateTime(2025, 7, 16, 22, 36, 28, 119, DateTimeKind.Local).AddTicks(3756),
                             DoB = new DateTime(1992, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "alice.admin@example.com",
                             FullName = "Alice Admin",
@@ -454,7 +458,7 @@ namespace EventController.Migrations
                         {
                             UserID = 2,
                             Address = "456 Organizer Ave, Da Nang",
-                            DateJoined = new DateTime(2025, 7, 17, 17, 52, 24, 173, DateTimeKind.Local).AddTicks(1797),
+                            DateJoined = new DateTime(2025, 7, 16, 22, 36, 28, 119, DateTimeKind.Local).AddTicks(3761),
                             DoB = new DateTime(1988, 7, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "bob.organizer@example.com",
                             FullName = "Bob Organizer",
@@ -470,7 +474,7 @@ namespace EventController.Migrations
                         {
                             UserID = 3,
                             Address = "789 Participant Rd, Hanoi",
-                            DateJoined = new DateTime(2025, 7, 17, 17, 52, 24, 173, DateTimeKind.Local).AddTicks(1799),
+                            DateJoined = new DateTime(2025, 7, 16, 22, 36, 28, 119, DateTimeKind.Local).AddTicks(3764),
                             DoB = new DateTime(2000, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "charlie.participant@example.com",
                             FullName = "Charlie Participant",

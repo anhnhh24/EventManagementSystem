@@ -1,0 +1,58 @@
+﻿@model Payment
+@{
+    ViewData["Title"] = "Xác nhận Thanh Toán";
+    bool isSuccess = Model.Status?.ToLower() == "success";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg rounded">
+                <div class="card-body text-center py-4">
+                    @if (isSuccess)
+                    {
+                        <h3 class="text-success mb-3"><i class="bi bi-check-circle-fill"></i> Thanh toán thành công!</h3>
+                        <p class="mb-4">Cảm ơn bạn đã thanh toán. Thông tin giao dịch của bạn được ghi nhận như sau:</p>
+                    }
+                    else
+                    {
+                        <h3 class="text-danger mb-3"><i class="bi bi-x-circle-fill"></i> Thanh toán thất bại</h3>
+                        <p class="mb-4">Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.</p>
+                    }
+
+                    <table class="table table-borderless w-75 mx-auto">
+                        <tr>
+                            <th class="text-end">Mã giao dịch (TxnRef):</th>
+                            <td class="text-start">@Model?.TransactionCode</td>
+                        </tr>
+                        <tr>
+                            <th class="text-end">Thông tin đơn hàng:</th>
+                            <td class="text-start">@Model?.OrderInfo</td>
+                        </tr>
+                        <tr>
+                            <th class="text-end">Số tiền:</th>
+                            <td class="text-start">@String.Format("{0:#,##0} VND", Model?.Amount)</td>
+                        </tr>
+                        <tr>
+                            <th class="text-end">Trạng thái:</th>
+                            <td class="text-start">
+                                @if (isSuccess)
+                                {
+                                    <span class="badge bg-success px-3 py-2">Thành công</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger px-3 py-2">Thất bại</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+
+                    <a href="/" class="btn btn-primary mt-4">
+                        <i class="bi bi-house-door-fill"></i> Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

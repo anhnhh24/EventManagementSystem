@@ -1,0 +1,50 @@
+﻿@model List<Bill>
+<div class="container py-4">
+    <h2 class="mb-4 text-center">List Bill</h2>
+
+    <div class="card shadow-sm rounded-4 border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col"># Invoice ID</th>
+                            <th scope="col">🗓 Created At</th>
+                            <th scope="col">💵 Total Amount</th>
+                            <th scope="col">📌 Status</th>
+                            <th scope="col">💳 Payment</th>
+                            <th scope="col" class="text-end">🔍 Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var bill in Model)
+                        {
+                            <tr>
+                                <td>@bill.BillID</td>
+                                <td>@bill.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@bill.TotalAmount.ToString("N0") VND</td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        @bill.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        @(bill.Payment?.Status ?? "No info")
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-primary rounded-pill"
+                                       asp-action="BillDetail"
+                                       asp-route-id="@bill.BillID">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

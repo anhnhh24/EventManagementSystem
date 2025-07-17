@@ -7,37 +7,20 @@ public class Payment
     public int PaymentID { get; set; }
 
     [Required]
-    public int RegistrationID { get; set; }
-
-    [ForeignKey("RegistrationID")]
-    public virtual Registration Registration { get; set; }
+    public int BillID { get; set; }
+    [ForeignKey("BillID")]
+    public virtual Bill Bill { get; set; }
 
     [Required]
+    [Column(TypeName = "decimal(18,2)")]
     public decimal Amount { get; set; }
 
+    public string? TransactionCode { get; set; }
+    public string? OrderInfo { get; set; }
     public DateTime? PaymentTime { get; set; }
 
+    public DateTime? ExpireTime { get; set; } 
+
     [MaxLength(20)]
-    public string Status { get; set; } 
-
-    [MaxLength(100)]
-    public string TransactionCode { get; set; }  
-
-    [MaxLength(100)]
-    public string OrderInfo { get; set; }       
-
-    [MaxLength(100)]
-    public string BankCode { get; set; }        
-
-    [MaxLength(100)]
-    public string CardType { get; set; }       
-
-    [MaxLength(100)]
-    public string SecureHash { get; set; }      
-
-    public string RefundStatus { get; set; }     
-
-    public string InvoiceURL { get; set; }
-
-    public string Note { get; set; }
+    public string Status { get; set; } = "Pending";
 }

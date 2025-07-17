@@ -1,9 +1,8 @@
-﻿@using EventController.Util
+﻿@using EventController.Models.ViewModels
+@using EventController.Util
 @addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
-@using EventController.Models.DTO
-@model UserDTO
 @{
-    var user = Context.Session.GetObject<UserDTO>("currentUser") ?? new UserDTO();
+    var user = Context.Session.GetObject<UserViewModel>("currentUser") ?? new UserViewModel();
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +35,7 @@
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link active" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Plan" asp-action="Index">Plans</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Event" asp-action="CreateEvent">Create Events</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Supplier" asp-action="Index">Suppliers</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="About" asp-action="Index">About</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Contact" asp-action="Index">Contact</a></li>
@@ -67,7 +66,9 @@
                                     <small class="text-muted">@user.Email</small>
                                 </li>
                                 <li><hr class="dropdown-divider" /></li>
-                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Profile</a></li>
+                                <li><a class="dropdown-item" asp-controller="User" asp-action="EditUserProfile">Profile</a></li>
+                                <li><a class="dropdown-item" asp-controller="Registration" asp-action="Index">Cart</a></li>
+                                <li><a class="dropdown-item" asp-controller="Bill" asp-action="Index">Bill</a></li>
                                 <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">Change Password</a></li>
                                 <li><hr class="dropdown-divider" /></li>
                                 <li>
