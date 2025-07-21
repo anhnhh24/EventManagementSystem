@@ -3,6 +3,7 @@ using EventController.Models.Entity;
 using EventController.Models.ViewModels;
 using EventController.Util;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Ocsp;
 
 namespace EventController.Controllers
 {
@@ -103,14 +104,25 @@ namespace EventController.Controllers
             {
                 return RedirectToAction("SignIn", "Authentication");
             }
-            var user = _userDAO.GetUserByEmail(currentUser.Email)   ;
-
-            if(user.RoleID != 3)
+            var user = _userDAO.GetUserByEmail(currentUser.Email);
+            if (user.RoleID != 3)
             {
                 TempData["Error"] = "You can register this event";
                 return RedirectToAction("Index", "Home");
             }    
-            bool success = _registrationDAO.RegisterUserToEvent(user.UserID, eventId);
+            List<Registration> registrations = _registrationDAO.getPendingUserRegistration(user.UserID);
+            var registration = registrations.FirstOrDefault(r => r.EventID == eventId);
+            bool success = false;
+
+            if (registration != null)
+            {
+                registration.Quantity += 1;
+                _registrationDAO.Update(registration);
+            }
+            else
+            {
+                success = _registrationDAO.RegisterUserToEvent(user.UserID, eventId);
+            }
 
             if (success)
             {

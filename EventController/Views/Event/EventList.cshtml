@@ -80,7 +80,7 @@
                     <div class="flex-grow-1">
                         <h5 class="fw-bold mb-1">@item.Title</h5>
                         <span class="badge bg-primary mb-2">@item.Category?.CategoryName</span>
-                        <p class="mb-1"><i class="bi bi-geo-alt"></i> @item.Location</p>
+                        <p class="mb-1"><i class="bi bi-geo-alt"></i> @item?.Venue.Name</p>
                         <p class="mb-1"><i class="bi bi-calendar-event"></i> @item.StartTime.ToString("dd MMM yyyy")</p>
                         <p class="mb-2 text-muted">
                             @item.Description?.Substring(0, Math.Min(120, item.Description?.Length ?? 0))...

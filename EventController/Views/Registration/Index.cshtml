@@ -83,7 +83,7 @@
                                         <div>
                                             <h6 class="mb-1 text-capitalize">@(item.Event?.Title ?? "Untitled Event")</h6>
                                             <small class="text-muted">Date: @item.Event?.StartTime.ToString("dd MMM yyyy")</small><br />
-                                            <small class="text-muted">Location: @item.Event?.Location</small>
+                                            <small class="text-muted">Location: @item.Event.Venue?.Address</small>
                                         </div>
                                         <a asp-action="Remove" asp-controller="Registration" asp-route-Id="@item.RegistrationID"
                                            class="text-danger small"><i class="bi bi-x-lg"></i></a>

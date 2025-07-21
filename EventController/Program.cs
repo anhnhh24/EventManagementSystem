@@ -47,7 +47,6 @@ app.UseRouting();
 
 app.UseSession(); 
 app.UseAuthorization();
-app.UseExceptionHandler("/Home/Privacy");
 
 app.MapControllerRoute(
     name: "default",

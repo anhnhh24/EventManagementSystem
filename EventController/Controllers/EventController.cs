@@ -175,7 +175,11 @@ namespace EventController.Controllers
                     ModelState.AddModelError("MaxAttendees", $"Max attendees exceed venue capacity of {venue.Capacity}.");
                 }
             }
-
+            model.Status = "Inactive";
+            if(model.Price == null)
+            {
+                model.Price = 0;
+            }    
             if (!ModelState.IsValid)
             {
                 ViewBag.listCategory = _categoryDAO.GetAllCategories();
@@ -184,6 +188,7 @@ namespace EventController.Controllers
             }
 
             string fileName = null;
+            string filePath = string.Empty;
 
             if (model.EventImage != null && model.EventImage.Length > 0)
             {
@@ -194,7 +199,8 @@ namespace EventController.Controllers
                 }
 
                 fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.EventImage.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
+                filePath = Path.Combine(uploadsFolder, fileName);
+                
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -212,11 +218,11 @@ namespace EventController.Controllers
                 CategoryID = model.CategoryID,
                 MaxAttendees = model.MaxAttendees,
                 Price = model.Price,
-                Status = "Active",
+                Status = model.Status,
                 OrganizerID = _userDAO.GetUserByEmail(user.Email).UserID,
                 CreatedAt = DateTime.Now,
                 CurrentAttendees = 0,
-                ImageUrl = model.ImageUrl
+                ImageUrl = filePath
             };
 
             _eventDAO.AddEvent(evt);

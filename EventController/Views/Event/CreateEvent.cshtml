@@ -11,7 +11,7 @@
 <div class="container py-4">
     <h2 class="fw-bold mb-4 text-primary"><i class="bi bi-calendar-plus"></i> Create New Event</h2>
 
-    <form asp-action="CreateEvent" method="post" class="needs-validation" novalidate>
+    <form asp-action="CreateEvent" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
         <div class="row g-4">
 
             <!-- Event Details Card -->
@@ -20,7 +20,7 @@
                     <div class="card-header bg-light fw-semibold">📝 Event Details</div>
                     <div class="card-body">
                         <label asp-for="EventImage" class="form-label">Event Image</label>
-                        <input asp-for="EventImage" type="file" class="form-control mb-3" accept="image/*" />
+                        <input asp-for="EventImage" type="file" class="form-control mb-3" accept=".jpg,.jpeg,.png" />
                         <span asp-validation-for="EventImage" class="text-danger small"></span>
 
 

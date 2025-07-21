@@ -48,7 +48,8 @@ namespace EventController.Models.DAO.Implements
         public Bill GetBillByBillId(int billId)
         {
             return _context.Bills
-                .Include(b => b.Registrations)
+                .Include(b => b.Registrations).
+                ThenInclude(r => r.Event)
                 .Include(b => b.Payment)
                 .FirstOrDefault(b => b.BillID == billId);
         }

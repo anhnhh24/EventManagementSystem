@@ -72,6 +72,7 @@ namespace EventController.Models.DAO.Implements
             return _context.Registrations.
                 Where(r => r.UserID == userId && r.Status == "Pending").
                 Include(r => r.Event).
+                Include(r => r.Event.Venue).
                 ToList();
         }
         public void Update(Registration registration)

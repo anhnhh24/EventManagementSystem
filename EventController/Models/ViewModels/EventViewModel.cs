@@ -32,12 +32,7 @@ public class EventViewModel
     [Display(Name = "Max Attendees")]
     public int? MaxAttendees { get; set; }
 
-    public int? CurrentAttendees { get; set; }
-
-    [Url(ErrorMessage = "Invalid image URL.")]
-    public string ImageUrl { get; set; }
-
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
     [Range(0, long.MaxValue, ErrorMessage = "Price must be 0 or greater.")]
     public long Price { get; set; }
