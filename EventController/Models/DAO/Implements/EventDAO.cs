@@ -21,6 +21,21 @@ namespace EventController.Models.DAO.Implements
                            .ToList();
         }
 
+        public List<Event> GetAllEventsThisMonth()
+        {
+            var now = DateTime.Now;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1);
+            var startOfNextMonth = startOfMonth.AddMonths(1);
+
+            return _context.Events
+                           .Include(e => e.Category)
+                           .Include(e => e.Organizer)
+                           .Where(e => e.StartTime >= startOfMonth && e.StartTime < startOfNextMonth)
+                           .OrderBy(e => e.StartTime)
+                           .ToList();
+        }
+
+
         public Event GetEventById(int id)
         {
             return _context.Events
@@ -72,6 +87,8 @@ namespace EventController.Models.DAO.Implements
         {
             return _context.Events
                            .Where(e => e.OrganizerID == organizerId && e.StartTime >= DateTime.UtcNow)
+                           .Include(e => e.Venue)
+                           .Include(e => e.Category)
                            .ToList();
         }
 
@@ -110,9 +127,10 @@ namespace EventController.Models.DAO.Implements
                            .Where(e => e.StartTime >= DateTime.UtcNow);
         }
 
-        public bool IsVenueOccupied(int venueId, DateTime start, DateTime end)
+        public bool IsVenueOccupied(int venueId, DateTime start, DateTime end, int currentEventId)
         {
             return _context.Events.Any(e =>
+                e.EventID != currentEventId &&
                 e.VenueID == venueId &&
                 e.Status == "Active" &&
                 (
@@ -121,6 +139,7 @@ namespace EventController.Models.DAO.Implements
                     (start <= e.StartTime && end >= e.EndTime)
                 )
             );
+
         }
 
         public void UpdateEventStatuses()

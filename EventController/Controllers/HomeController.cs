@@ -30,6 +30,7 @@ public class HomeController : Controller
         listCategory = _categoryDAO.GetAllCategories();
         listEvent = _eventDAO.GetAllEvents();
         listVenue = _venueDAO.GetAllVenues();
+        ViewBag.listEventIn1Month = _eventDAO.GetAllEventsThisMonth();
         ViewBag.listCategory = listCategory;
         ViewBag.listVenue = listVenue;
         ViewBag.listEvent = listEvent;

@@ -47,8 +47,4 @@ public class Event
     public long Price { get; set; }
 
     public virtual ICollection<Registration> Registrations { get; set; }
-
-    public virtual ICollection<Feedback> Feedbacks { get; set; }
-
-    public virtual ICollection<Notification> Notifications { get; set; }
 }

@@ -16,7 +16,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="wwwroot\img\avartars\" />
-	  <Folder Include="wwwroot\img\events\" />
 	  <Folder Include="wwwroot\uploads\" />
 	</ItemGroup>
 </Project>

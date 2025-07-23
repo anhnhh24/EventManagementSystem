@@ -75,7 +75,7 @@
             @foreach (var item in ViewBag.listEvent)
             {
                 <div class="event-list-item d-flex align-items-start gap-3">
-                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/150x100" : item.ImageUrl)"
+                    <img src="@(item.ImageUrl != null ? Url.Content("~/" + item.ImageUrl) : Url.Content("~/img/events/Unknown.png"))"
                          class="event-image" alt="event" />
                     <div class="flex-grow-1">
                         <h5 class="fw-bold mb-1">@item.Title</h5>

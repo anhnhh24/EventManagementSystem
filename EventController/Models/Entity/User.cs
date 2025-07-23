@@ -44,7 +44,5 @@ namespace EventController.Models.Entity
 
         public virtual ICollection<Event> OrganizedEvents { get; set; }
         public virtual ICollection<Registration> Registrations { get; set; }
-        public virtual ICollection<Feedback> Feedbacks { get; set; }
-        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

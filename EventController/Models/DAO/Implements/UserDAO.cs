@@ -18,7 +18,8 @@ namespace EventController.Models.DAO.Implements
         public List<User> GetAllUsers()
         {
             return _context.Users
-                           .Include(u => u.Role)                 
+                           .Include(u => u.Role)
+                           .OrderByDescending(u => u.DateJoined)
                            .ToList();
         }
 

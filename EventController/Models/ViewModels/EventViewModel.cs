@@ -36,5 +36,5 @@ public class EventViewModel
 
     [Range(0, long.MaxValue, ErrorMessage = "Price must be 0 or greater.")]
     public long Price { get; set; }
-    public IFormFile EventImage { get; set; }
+    public IFormFile? EventImage { get; set; }
 }

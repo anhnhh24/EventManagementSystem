@@ -46,8 +46,15 @@ namespace EventController.Controllers
                         ProfileImage = existingUser.ProfileImage
                     };
                     HttpContext.Session.SetObject("currentUser", SessionUser);
-                    
-                    return RedirectToAction("Index", "Home");
+                    if (existingUser.RoleID == 1)
+                    {
+                        return RedirectToAction("UserAdmin", "Admin");
+
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
             }
             return View();
@@ -138,6 +145,7 @@ namespace EventController.Controllers
                             if (verifyToken.Token.Equals(token))
                             {
                                 user.IsEmailVerified = true;
+                                _emailDAO.MarkTokenAsUsedAsync(verifyToken).Wait();
                                 _userDAO.UpdateUser(user);
                                 ViewBag.Notification = "Email confirmed";
                                 return View("SignIn");
@@ -168,5 +176,108 @@ namespace EventController.Controllers
             }
             return View("SignIn");
         }
+
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError("", "Email is required.");
+                return View();
+            }
+
+            var user =  _userDAO.GetUserByEmail(email);
+            if (user == null)
+            {
+                return RedirectToAction("ForgotPasswordConfirmation");
+            }
+
+            var token = _emailDAO.GenerateTokenAsync(user.UserID);
+            var resetLink = Url.Action("ResetPassword", "Authentication", new { token = token.Result.Token, userID = user.UserID }, Request.Scheme);
+
+            var emailService = new EmailService();
+            string subject = "Forgot Password";
+            string content = $@"
+                                <h2>Hi {user.FullName},</h2>
+                                <p>We received a request to reset your password.</p>
+                                <p>Please click the link below to set a new password:</p>
+                                <p><a href='{resetLink}'>Reset Password</a></p>
+                                <p>If you did not request this, please ignore this email.</p>
+                                <p style='font-size: 12px; color: gray;'>This link will expire in 30 minutes.</p>";
+
+            await emailService.SendConfirmationEmailAsync(email,user.FullName,subject ,content);
+
+            return View("SignIn");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string userId, string token)
+        {
+            try
+            {
+                int id = int.Parse(userId);
+                User user = _userDAO.GetUserById(id);
+                if (user != null)
+                {
+                    EmailVerificationToken resetToken = _emailDAO.GetValidTokenAsync(token, id).Result;
+                    if (resetToken != null && resetToken.ExpiresAt > DateTime.Now && !resetToken.IsUsed)
+                    {
+                        ViewBag.UserId = userId;
+                        ViewBag.Token = token;
+                        return View(); 
+                    }
+                    else
+                    {
+                        ViewBag.Notification = "Your password reset link is invalid or expired.";
+                        return View("SignIn");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ViewBag.Notification = "An error occurred while verifying your reset link.";
+                return View("SignIn");
+            }
+            ViewBag.Notification = "Invalid reset request.";
+            return View("SignIn");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string userId, string token, string newPassword, string confirmPassword)
+        {
+            try
+            {
+                if (newPassword != confirmPassword)
+                {
+                    ViewBag.Notification = "Passwords do not match.";
+                    ViewBag.UserId = userId;
+                    ViewBag.Token = token;
+                    return View();
+                }
+
+                int id = int.Parse(userId);
+                User user = _userDAO.GetUserById(id);
+                if (user != null)
+                {
+                    EmailVerificationToken resetToken = _emailDAO.GetValidTokenAsync(token, id).Result;
+                    if (resetToken != null && resetToken.ExpiresAt > DateTime.Now && !resetToken.IsUsed)
+                    {
+                        user.Password = PasswordHelper.HashPassword(newPassword);
+                        _userDAO.UpdateUser(user);
+                        _emailDAO.MarkTokenAsUsedAsync(resetToken).Wait();
+
+                        ViewBag.Notification = "Your password has been reset successfully.";
+                        return View("SignIn");
+                    }
+                }
+                ViewBag.Notification = "Invalid or expired token.";
+                return View("SignIn");
+            }
+            catch
+            {
+                ViewBag.Notification = "An error occurred while resetting the password.";
+                return View("SignIn");
+            }
+        }
+
     }
 }

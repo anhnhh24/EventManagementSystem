@@ -69,31 +69,37 @@ namespace EventController.Controllers
             user.DoB = model.DoB;
             user.Address = model.Address;
 
-            if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+            if (model.ProfileImageFile != null && model.ProfileImageFile.Length > 0)
             {
-                var fileName = Path.GetFileName(model.ProfileImageFile.FileName);
-
-                var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
-
-                var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "avatars");
-
-                if (!Directory.Exists(uploadFolder))
-                {
-                    Directory.CreateDirectory(uploadFolder);
-                }
-
-                var filePath = Path.Combine(uploadFolder, uniqueFileName); 
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    model.ProfileImageFile.CopyToAsync(stream); 
-                }
-
-                user.ProfileImage = $"/uploads/avatars/{uniqueFileName}";
+                ImageService imageService = new ImageService();
+                user.ProfileImage = imageService.SaveImage(model.ProfileImageFile, "avartars");
             }
 
+            EditUserViewModel vm = new EditUserViewModel
+            {
+                UserID = user.UserID,
+                FullName = user.FullName,
+                Email = user.Email,
+                Phone = user.Phone,
+                Gender = user.Gender,
+                DoB = user.DoB,
+                Address = user.Address,
+                ProfileImage = user.ProfileImage
+            };
+            HttpContext.Session.Clear();
+            UserViewModel SessionUser = new UserViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email,
+                Address = user.Address,
+                DoB = user.DoB,
+                Phone = user.Phone,
+                RoleID = user.RoleID,
+                ProfileImage = user.ProfileImage
+            };
+            HttpContext.Session.SetObject("currentUser", SessionUser);
             _userDAO.UpdateUser(user);
-            return RedirectToAction("Index", "Home");
+            return View(vm);
         }
 
 

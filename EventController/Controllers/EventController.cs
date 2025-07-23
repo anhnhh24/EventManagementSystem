@@ -107,27 +107,72 @@ namespace EventController.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult Edit(int id)
+        [HttpGet]
+        public IActionResult EditEvent(int id)
         {
+            var user = HttpContext.Session.GetObject<UserViewModel>("currentUser");
             var evt = _eventDAO.GetEventById(id);
-            if (evt == null || evt.Organizer.FullName != User.Identity.Name)
-            {
+            if (evt == null || evt.Organizer.Email != user.Email)
                 return NotFound();
-            }
 
+            var vm = new EventViewModel
+            {
+                Title = evt.Title,
+                Description = evt.Description,
+                StartTime = evt.StartTime,
+                EndTime = evt.EndTime,
+                CategoryID = evt.CategoryID,
+                VenueID = evt.VenueID,
+                MaxAttendees = evt.MaxAttendees,
+                Price = evt.Price,
+            };
+            ViewBag.EventId = evt.EventID;
+            ViewBag.ImageUrl = evt.ImageUrl;
             ViewBag.listCategory = _categoryDAO.GetAllCategories();
             ViewBag.listVenue = _venueDAO.GetAllVenues();
-            return View(evt);
+            return View(vm);
         }
         [HttpPost]
-        public IActionResult Edit(Event model)
+        public IActionResult EditEvent(EventViewModel model, string EventId)
         {
+            ViewBag.listCategory = _categoryDAO.GetAllCategories();
+            ViewBag.listVenue = _venueDAO.GetAllVenues();
+            var user = HttpContext.Session.GetObject<UserViewModel>("currentUser");
             if (ModelState.IsValid)
             {
-                var evt = _eventDAO.GetEventById(model.EventID);
-                if (evt == null || evt.Organizer.FullName != User.Identity.Name)
+                var evt = _eventDAO.GetEventById(int.Parse(EventId));
+                if (evt == null || evt.Organizer.Email != user.Email)
                 {
                     return NotFound();
+                }
+
+                if (model.StartTime >= model.EndTime)
+                {
+                    ModelState.AddModelError("EndTime", "End time must be after start time.");
+                }
+
+                if (model.VenueID.HasValue)
+                {
+                    bool isOccupied = _eventDAO.IsVenueOccupied(model.VenueID.Value, model.StartTime, model.EndTime, int.Parse(EventId));
+                    if (isOccupied)
+                    {
+                        ModelState.AddModelError("VenueID", "There is already another event scheduled at this venue during the selected time.");
+                    }
+
+                    var venue = _venueDAO.GetVenueById(model.VenueID.Value);
+                    if (venue != null && model.MaxAttendees.HasValue && model.MaxAttendees.Value > venue.Capacity)
+                    {
+                        ModelState.AddModelError("MaxAttendees", $"Max attendees exceed venue capacity of {venue.Capacity}.");
+                    }
+                }
+
+                string fileName = null;
+
+                if (model.EventImage != null && model.EventImage.Length > 0 && !string.IsNullOrEmpty(evt.ImageUrl) )
+                {
+
+                    ImageService imgService = new ImageService();
+                    fileName = imgService.SaveImage(model.EventImage, "events");
                 }
 
                 evt.Title = model.Title;
@@ -138,13 +183,16 @@ namespace EventController.Controllers
                 evt.CategoryID = model.CategoryID;
                 evt.MaxAttendees = model.MaxAttendees;
                 evt.Price = model.Price;
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    evt.ImageUrl = fileName;
+                }
 
                 _eventDAO.UpdateEvent(evt);
-                return RedirectToAction(nameof(Index));
+                ViewBag.EventId = evt.EventID;
+                ViewBag.ImageUrl = evt.ImageUrl;
+                return View();
             }
-
-            ViewBag.listCategory = _categoryDAO.GetAllCategories();
-            ViewBag.listVenue = _venueDAO.GetAllVenues();
             return View(model);
         }
         [HttpPost]
@@ -163,7 +211,7 @@ namespace EventController.Controllers
 
             if (model.VenueID.HasValue)
             {
-                bool isOccupied = _eventDAO.IsVenueOccupied(model.VenueID.Value, model.StartTime, model.EndTime);
+                bool isOccupied = _eventDAO.IsVenueOccupied(model.VenueID.Value, model.StartTime, model.EndTime, -1);
                 if (isOccupied)
                 {
                     ModelState.AddModelError("VenueID", "There is already another event scheduled at this venue during the selected time.");
@@ -188,24 +236,12 @@ namespace EventController.Controllers
             }
 
             string fileName = null;
-            string filePath = string.Empty;
 
             if (model.EventImage != null && model.EventImage.Length > 0)
             {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "events");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
 
-                fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.EventImage.FileName);
-                filePath = Path.Combine(uploadsFolder, fileName);
-                
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    model.EventImage.CopyTo(stream);
-                }
+                ImageService imgService = new ImageService();
+                fileName = imgService.SaveImage(model.EventImage, "events");
             }
 
             var evt = new Event
@@ -222,7 +258,7 @@ namespace EventController.Controllers
                 OrganizerID = _userDAO.GetUserByEmail(user.Email).UserID,
                 CreatedAt = DateTime.Now,
                 CurrentAttendees = 0,
-                ImageUrl = filePath
+                ImageUrl = fileName
             };
 
             _eventDAO.AddEvent(evt);
@@ -230,6 +266,44 @@ namespace EventController.Controllers
             return RedirectToAction("EventList");
         }
 
+        public IActionResult EventOrganizer(string sortBy)
+        {
+            var user = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if(user.RoleID != 2)
+            {
+                TempData["Error"] = "You can't access this page";
+                return RedirectToAction("Index", "Home");
+            }
+            var User = _userDAO.GetUserByEmail(user.Email);
+            var events = _eventDAO.GetEventsByOrganizer(User.UserID);
+            switch (sortBy)
+            {
+                case "attenddees":
+                    events = events.OrderBy(e => e.MaxAttendees).ToList();
+                    break;
+                case "price":
+                    events = events.OrderByDescending(e => e.Price).ToList();
+                    break;
+                case "status":
+                    events = events.OrderBy(e => e.Status).ToList();
+                    break;
+                case "start":
+                    events = events.OrderBy(e => e.StartTime).ToList();
+                    break;
+                default:
+                    break;
+
+            }
+            ViewBag.EventList = events;
+            return View();
+        }
+
 
     }
+
+
 }

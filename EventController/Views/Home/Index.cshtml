@@ -4,13 +4,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Your Wedding, Your Way – Event Management</title>
+    <title>Event Management</title>
 
     <!-- Bootstrap CSS 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons (tuỳ chọn) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+
 
     <style>
         /* Tuỳ biến nhanh */
@@ -59,64 +63,150 @@
         border-radius: 50%;
         object-fit: cover;
         }
+
+        .timeline {
+            border-left: 3px solid #0d6efd;
+            padding-left: 20px;
+            margin-left: 20px;
+            position: relative;
+        }
+
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: -8px;
+                top: 0;
+                width: 15px;
+                height: 15px;
+                background-color: #0d6efd;
+                border-radius: 50%;
+            }
+
+        .timeline {
+            position: relative;
+            margin-left: 30px;
+            padding-left: 30px;
+            border-left: 3px solid #0d6efd;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -18px;
+            top: 5px;
+            width: 14px;
+            height: 14px;
+            background-color: #0d6efd;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #0d6efd;
+        }
+
+        .timeline-content {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
 <body>
 
     <!-- ========== HERO & SEARCH ========== -->
-    <section class="py-5 text-center">
+    <section class="py-5 bg-light">
         <div class="container">
-            <h1 class="hero-title mb-4">Your Wedding, Your Way</h1>
-
-            <form class="row gy-2 gx-3 justify-content-center"
-                  asp-action="EventList" asp-controller="Event" method="get">
-                <div class="col-md-3">
-                    <select class="form-select" name="categoryId">
-                        <option value="">All categories</option>
-                        @foreach (var c in ViewBag.listCategory)
-                        {
-                            <option value="@c.CategoryID">@c.CategoryName</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <input type="date" name="startDate" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select" name="venueId">
-                        <option value="">All venues</option>
-                        @foreach (var v in ViewBag.listVenue)
-                        {
-                            <option value="@v.VenueID">@v.Name</option>
-                        }
-                    </select>
+            <div class="row align-items-center g-5">
+                <!-- Left Text -->
+                <div class="col-lg-6 text-center text-lg-start">
+                    <h1 class="display-4 fw-bold mb-3">Make Every Event Unforgettable</h1>
+                    <p class="lead text-muted mb-4">
+                        Discover, plan, and register for events that inspire. Whether you're attending or organizing, we make it seamless.
+                    </p>
+                    <a href="/Event/EventList" class="btn btn-primary btn-lg px-4">Explore Events</a>
                 </div>
 
-                <div class="col-md-2 d-grid">
-                    <button class="btn btn-primary" type="submit">Search</button>
+                <!-- Hero Image -->
+                <div class="col-lg-6 text-center">
+                    <img src="~/img/events/hero-event.jpg" alt="Featured Event"
+                         class="img-fluid rounded shadow-lg w-100" style="max-height: 400px; object-fit: cover;">
                 </div>
-            </form>
+            </div>
 
+            <!-- Search Form -->
+            <div class="mt-5">
+                <form class="row g-3 align-items-end justify-content-center"
+                      asp-action="EventList" asp-controller="Event" method="get">
+
+                    <!-- Category -->
+                    <div class="col-md-4 col-lg-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="categoryId">
+                            <option value="">All categories</option>
+                            @foreach (var c in ViewBag.listCategory)
+                            {
+                                <option value="@c.CategoryID">@c.CategoryName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="col-md-4 col-lg-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="startDate" class="form-control" />
+                    </div>
+
+                    <!-- Venue -->
+                    <div class="col-md-4 col-lg-3">
+                        <label class="form-label">Venue</label>
+                        <select class="form-select" name="venueId">
+                            <option value="">All venues</option>
+                            @foreach (var v in ViewBag.listVenue)
+                            {
+                                <option value="@v.VenueID">@v.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="col-md-3 col-lg-2 d-grid">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </section>
 
     <!-- ========== BROWSE BY CATEGORY ========== -->
-    <section class="pb-5">
+    @{
+        var bgColors = new[] { "bg-primary", "bg-success", "bg-warning", "bg-danger", "bg-info", "bg-secondary" };
+        int colorIndex = 0;
+    }
+    <section class="py-5">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="section-heading">Browse by Category</h2>
-                <a class="small text-decoration-none">See all</a>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 mb-0">Browse by Category</h2>
+                <a href="/Event/List" class="text-primary text-decoration-none small">See all</a>
             </div>
 
             <div class="row g-3">
                 @foreach (var item in ((IEnumerable<dynamic>)ViewBag.listCategory).Take(6))
                 {
+                    var bg = bgColors[colorIndex % bgColors.Length];
+                    colorIndex++;
+
                     <div class="col-6 col-md-4 col-lg-2">
-                        <div class="card text-center border-0 shadow-sm h-100">
-                            <div class="card-body d-flex align-items-center justify-content-center p-3">
-                                <a asp-action="EventList" asp-controller="Event" asp-route-categoryId="@item.CategoryID"><p class="mb-0 fw-semibold">@item.CategoryName</p></a>
+                        <a asp-action="EventList" asp-controller="Event" asp-route-categoryId="@item.CategoryID"
+                           class="text-decoration-none">
+                            <div class="card text-center text-white border-0 shadow-sm h-100 @bg">
+                                <div class="card-body d-flex align-items-center justify-content-center p-3">
+                                    <p class="mb-0 fw-semibold">@item.CategoryName</p>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 }
             </div>
@@ -150,20 +240,25 @@
              
         </div>
     </section>
-
-    <!-- ========== CTA BANNER ========== -->
-    <section class="py-5">
-        <div class="container">
-            <div class="cta-banner d-flex flex-column flex-md-row align-items-center gap-4">
-                <img src="https://via.placeholder.com/150" class="flex-shrink-0" alt="">
-                <div class="flex-grow-1">
-                    <h4>Lorem ipsum dolor sit amet</h4>
-                    <p class="mb-3">Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
-                    <a href="#" class="btn btn-primary">Book Now</a>
+    <div class="container mt-4">
+        <h3 class="mb-4">📌 Event Timeline</h3>
+        <div class="timeline">
+            @foreach (var item in ViewBag.listEventIn1Month as List<Event>)
+            {
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h5 class="fw-bold">@item.Title</h5>
+                        <small class="text-muted">@item.StartTime.ToString("MMM dd, yyyy - HH:mm") → @item.EndTime.ToString("HH:mm")</small>
+                        <p class="mb-1">📍 @item.Venue?.Name</p>
+                        <span class="badge bg-primary">Upcoming</span>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
-    </section>
+    </div>
+
+
 
     <!-- ========== FEATURED EVENT ========== -->
     <div class="container my-5">
@@ -183,9 +278,12 @@
                         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 g-3">
                             @foreach (var item in chunk)
                             {
-                                <div class="col">
-                                    <div class="card shadow-sm h-100">
-                                        <img src="@item.ImageUrl ?? " https: //via.placeholder.com/300x150"" class="card-img-top event-img" alt="event image">
+                                    <div class="col">
+                                        <div class="card shadow-sm h-100">
+                                            <img src="@(item.ImageUrl != null ? Url.Content("~/" + item.ImageUrl) : Url.Content("~/img/events/Unknown.png"))"
+                                                 class="card-img-top event-img object-fit-cover"
+                                                 alt="event image"
+                                                 style="height: 200px; width: 100%; object-fit: cover;" />
                                             <div class="card-body d-flex flex-column">
                                                 <h6 class="card-title fw-bold">@item.Title</h6>
                                                 <p class="card-text small text-muted mb-2">
@@ -200,9 +298,8 @@
                                                     <a asp-controller="Event" asp-action="Index" asp-route-id="@item.EventID" class="btn btn-outline-primary btn-sm">View Details</a>
                                                 </div>
                                             </div>
-
+                                        </div>
                                     </div>
-                                </div>
                             }
                         </div>
                     </div>
@@ -222,35 +319,6 @@
         </div>
     </div>
 
-
-
-    <!-- ========== REVIEWS ========== -->
-    <section class="pb-5 bg-light">
-        <div class="container">
-            <h2 class="section-heading text-center mb-4">Reviews</h2>
-
-            <div class="row g-4 justify-content-center">
-                <div class="col-md-5">
-                    <div class="review-box">
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="https://via.placeholder.com/48" class="review-avatar me-2" alt="">
-                            <strong>Nguyễn An</strong>
-                        </div>
-                        <p class="mb-0 fst-italic">“Dịch vụ tuyệt vời! Sự kiện của chúng tôi diễn ra hoàn hảo.”</p>
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <div class="review-box">
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="https://via.placeholder.com/48" class="review-avatar me-2" alt="">
-                            <strong>Trần Linh</strong>
-                        </div>
-                        <p class="mb-0 fst-italic">“Giao diện dễ dùng, tìm nhà cung cấp rất nhanh chóng.”</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
     @if (TempData["Success"] != null)
     {
         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">

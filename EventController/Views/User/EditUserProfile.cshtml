@@ -50,15 +50,15 @@
                     <input type="hidden" asp-for="UserID" />
 
                     <div class="d-flex align-items-center gap-4">
-                        <img src="@(string.IsNullOrEmpty(Model.ProfileImage) ? "https://via.placeholder.com/120" : Model.ProfileImage)" class="avatar-lg" alt="User Avatar" />
+                        <img src="@(Model.ProfileImage != null ? Url.Content("~/" + Model.ProfileImage) : Url.Content("~/img/events/Unknown.png"))" class="avatar-lg" alt="User Avatar" />
                         <div class="flex-grow-1">
                             <h4 class="mb-1 fw-bold">@Model.FullName</h4>
                             <span class="badge bg-primary">Participant</span>
                             <p class="small text-muted mb-0">Member since: 12 Jan 2024</p>
                         </div>
                         <div>
-                            <label asp-for="ProfileImage" class="form-label">Change Photo</label>
-                            <input asp-for="ProfileImageFile" type="file" class="form-control form-control-sm" />
+                            <label asp-for="ProfileImageFile" class="form-label">Change Photo</label>
+                            <input asp-for="ProfileImageFile" type="file" class="form-control" accept="image/*" />
                         </div>
                     </div>
 
@@ -106,52 +106,6 @@
                     </div>
                 </form>
 
-                <!-- TAB SECTION -->
-                <ul class="nav nav-pills mt-5" id="profileTabs" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#events" type="button">My Events</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#registrations" type="button">Registrations</button>
-                    </li>
-                </ul>
-
-                <div class="tab-content mt-3">
-                    <div class="tab-pane fade show active" id="events">
-                        <div class="event-mini d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>AI Conference 2025</strong><br />
-                                <small class="text-muted">01 Sep 2025 — Grand Hall, HCMC</small>
-                            </div>
-                            <a href="#" class="btn btn-sm btn-outline-secondary">Manage</a>
-                        </div>
-
-                        <div class="event-mini d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Startup Pitch Day</strong><br />
-                                <small class="text-muted">15 Oct 2025 — Hanoi</small>
-                            </div>
-                            <a href="#" class="btn btn-sm btn-outline-secondary">Manage</a>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="registrations">
-                        <div class="event-mini d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Design Thinking Workshop</strong><br />
-                                <small class="text-muted">25 Aug 2025 — Da Nang</small>
-                            </div>
-                            <span class="badge bg-success">Registered</span>
-                        </div>
-
-                        <div class="event-mini d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Acoustic Night Live</strong><br />
-                                <small class="text-muted">10 Sep 2025 — HCMC</small>
-                            </div>
-                            <span class="badge bg-success">Registered</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
