@@ -34,8 +34,17 @@
 <body class="bg-light">
 
     <div class="container mt-4">
-        <h5 class="mb-3">EVENT LIST</h5>
 
+        <h5 class="mb-3">EVENT LIST</h5>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger text-center">@TempData["Error"]</div>
+        }
+
+        @if (TempData["Notification"] != null)
+        {
+            <div class="alert alert-success text-center">@TempData["Notification"]</div>
+        }
         <!-- Sort controls -->
         <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
             <span>Sorting order:</span>
@@ -63,6 +72,7 @@
                             <th>End Time</th>
                             <th>Status</th>
                             <th>Max Attendees</th>
+                            <th>Current Attendees</th>
                             <th>Price</th>
                             <th>Action</th>
                         </tr>
@@ -104,6 +114,11 @@
                                 <td>
                                     <span class="fw-bold text-primary">
                                         @(item.MaxAttendees)
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-primary">
+                                        @(item.CurrentAttendees)
                                     </span>
                                 </td>
                                 @if (item.Price == 0)

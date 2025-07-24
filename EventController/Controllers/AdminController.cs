@@ -10,12 +10,14 @@ namespace EventController.Controllers
     {
         UserDAO _userDAO;
         EventDAO _eventDAO;
+        EventCategoryDAO _eventCategoryDAO;
         EmailVerificationTokenDAO _emailDAO;
 
-        public AdminController( UserDAO userDAO, EmailVerificationTokenDAO emailDAO, EventDAO eventDAO)
+        public AdminController( UserDAO userDAO, EmailVerificationTokenDAO emailDAO, EventDAO eventDAO, EventCategoryDAO eventCategory)
         {
             _userDAO = userDAO;
             _emailDAO = emailDAO;
+            _eventCategoryDAO = eventCategory;
             _eventDAO = eventDAO;
         }
         public IActionResult UserAdmin()
@@ -25,29 +27,34 @@ namespace EventController.Controllers
             return View();
         }
 
-        public IActionResult EventAdmin(string sortBy)
+        public IActionResult EventAdmin(string status, int? category)
         {
             var events = _eventDAO.GetAllEvents();
-            switch (sortBy)
-            {
-                case "attenddees":
-                    events = events.OrderBy(e => e.MaxAttendees).ToList();
-                    break;
-                case "price":
-                    events = events.OrderByDescending(e => e.Price).ToList();
-                    break;
-                case "status":
-                    events = events.OrderBy(e => e.Status).ToList();
-                    break;
-                case "start":
-                    events = events.OrderBy(e => e.StartTime).ToList();
-                    break;
-                default:
-                    break;
 
+            if (category.HasValue)
+            {
+                events = events.Where(e => e.CategoryID == category.Value).ToList();
             }
+
+            if(!string.IsNullOrEmpty(status))
+            {
+                events = events.Where(e => e.Status == status).ToList();
+            }
+
+            ViewBag.listCategory = _eventCategoryDAO.GetAllCategories();
             ViewBag.EventList = events;
             return View();
         }
+
+        public IActionResult AcceptEvent(int id)
+        {
+            var events = _eventDAO.GetEventById(id);
+
+            events.Status = "Upcoming";
+
+            _eventDAO.UpdateEvent(events);
+            return RedirectToAction("EventAdmin", "Admin");
+        }
+
     }
 }

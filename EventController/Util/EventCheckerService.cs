@@ -27,7 +27,7 @@ public class EventCheckerService : BackgroundService
                 eventDAO.UpdateEventStatuses();
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken); 
+            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken); 
         }
     }
 

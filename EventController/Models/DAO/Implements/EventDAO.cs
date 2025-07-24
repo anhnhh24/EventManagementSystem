@@ -25,7 +25,7 @@ namespace EventController.Models.DAO.Implements
         {
             var now = DateTime.Now;
             var startOfMonth = new DateTime(now.Year, now.Month, 1);
-            var startOfNextMonth = startOfMonth.AddMonths(1);
+            var startOfNextMonth = startOfMonth.AddMonths(2);
 
             return _context.Events
                            .Include(e => e.Category)
@@ -96,7 +96,7 @@ namespace EventController.Models.DAO.Implements
         {
             DateTime start = from ?? DateTime.UtcNow;
             return _context.Events
-                           .Where(e => e.StartTime >= start)
+                           .Where(e => e.StartTime >= start && e.Status == "Upcoming")
                            .OrderBy(e => e.StartTime)
                            .ToList();
         }

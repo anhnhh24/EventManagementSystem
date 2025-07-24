@@ -113,8 +113,15 @@ namespace EventController.Controllers
             var user = HttpContext.Session.GetObject<UserViewModel>("currentUser");
             var evt = _eventDAO.GetEventById(id);
             if (evt == null || evt.Organizer.Email != user.Email)
-                return NotFound();
-
+            {
+                TempData["Error"] = "Event invalid";
+                return RedirectToAction("EventOrganizer", "Event");
+            }
+            if (evt.Status != "Inactive")
+            {
+                TempData["Notification"] = "You can not update active event";
+                return RedirectToAction("EventOrganizer", "Event");
+            }
             var vm = new EventViewModel
             {
                 Title = evt.Title,
@@ -138,12 +145,19 @@ namespace EventController.Controllers
             ViewBag.listCategory = _categoryDAO.GetAllCategories();
             ViewBag.listVenue = _venueDAO.GetAllVenues();
             var user = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            var evt = _eventDAO.GetEventById(int.Parse(EventId));
+            if(evt.Status != "Inactive")
+            {
+                ViewBag.Notification = "You can not update active event";
+                return View();
+            }
             if (ModelState.IsValid)
             {
-                var evt = _eventDAO.GetEventById(int.Parse(EventId));
+               
                 if (evt == null || evt.Organizer.Email != user.Email)
                 {
-                    return NotFound();
+                    ViewBag.Notification = "Event invalid";
+                    return RedirectToAction("EventOrganizer", "Event");
                 }
 
                 if (model.StartTime >= model.EndTime)
@@ -189,6 +203,7 @@ namespace EventController.Controllers
                 }
 
                 _eventDAO.UpdateEvent(evt);
+                ViewBag.Notification = "Event update successfully";
                 ViewBag.EventId = evt.EventID;
                 ViewBag.ImageUrl = evt.ImageUrl;
                 return View();
@@ -201,7 +216,7 @@ namespace EventController.Controllers
             var user = HttpContext.Session.GetObject<UserViewModel>("currentUser");
             if (user == null)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("SignIn", "Authentication");
             }
 
             if (model.StartTime >= model.EndTime)
@@ -262,7 +277,7 @@ namespace EventController.Controllers
             };
 
             _eventDAO.AddEvent(evt);
-
+            ViewBag.Notification = "Event create successfully";
             return RedirectToAction("EventList");
         }
 
@@ -271,7 +286,7 @@ namespace EventController.Controllers
             var user = HttpContext.Session.GetObject<UserViewModel>("currentUser");
             if (user == null)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("SignIn", "Authentication");
             }
             if(user.RoleID != 2)
             {

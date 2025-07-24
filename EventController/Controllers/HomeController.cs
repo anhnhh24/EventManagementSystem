@@ -28,7 +28,7 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         listCategory = _categoryDAO.GetAllCategories();
-        listEvent = _eventDAO.GetAllEvents();
+        listEvent = _eventDAO.GetUpcomingEvents();
         listVenue = _venueDAO.GetAllVenues();
         ViewBag.listEventIn1Month = _eventDAO.GetAllEventsThisMonth();
         ViewBag.listCategory = listCategory;

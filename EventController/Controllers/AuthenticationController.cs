@@ -83,7 +83,7 @@ namespace EventController.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    return View("SignUp");        
+                    return View("SignUp");
                 }
 
                 var user = new User
@@ -169,7 +169,7 @@ namespace EventController.Controllers
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ViewBag.Notification = "An error occur when verify user email";
                 return View("SignIn");
@@ -185,7 +185,7 @@ namespace EventController.Controllers
                 return View();
             }
 
-            var user =  _userDAO.GetUserByEmail(email);
+            var user = _userDAO.GetUserByEmail(email);
             if (user == null)
             {
                 return RedirectToAction("ForgotPasswordConfirmation");
@@ -204,7 +204,7 @@ namespace EventController.Controllers
                                 <p>If you did not request this, please ignore this email.</p>
                                 <p style='font-size: 12px; color: gray;'>This link will expire in 30 minutes.</p>";
 
-            await emailService.SendConfirmationEmailAsync(email,user.FullName,subject ,content);
+            await emailService.SendConfirmationEmailAsync(email, user.FullName, subject, content);
 
             return View("SignIn");
         }
@@ -223,7 +223,7 @@ namespace EventController.Controllers
                     {
                         ViewBag.UserId = userId;
                         ViewBag.Token = token;
-                        return View(); 
+                        return View();
                     }
                     else
                     {
@@ -248,7 +248,7 @@ namespace EventController.Controllers
             {
                 if (newPassword != confirmPassword)
                 {
-                    ViewBag.Notification = "Passwords do not match.";
+                    ViewBag.Error = "Passwords do not match.";
                     ViewBag.UserId = userId;
                     ViewBag.Token = token;
                     return View();
@@ -269,15 +269,64 @@ namespace EventController.Controllers
                         return View("SignIn");
                     }
                 }
-                ViewBag.Notification = "Invalid or expired token.";
+                ViewBag.Error = "Invalid or expired token.";
                 return View("SignIn");
             }
             catch
             {
-                ViewBag.Notification = "An error occurred while resetting the password.";
+                ViewBag.Error = "An error occurred while resetting the password.";
                 return View("SignIn");
             }
         }
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            return View();
+
+        }
+
+        [HttpPost]
+        public IActionResult ChangePassword(string newPassword, string confirmPassword, string oldPassword)
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Authentication");
+            }
+            var user = _userDAO.GetUserByEmail(currentUser.Email);
+            if (string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                ViewBag.Error = "Please fill in both password fields.";
+                return View();
+            }
+
+            if (!PasswordHelper.VerifyPassword(user.Password, oldPassword))
+            {
+                ViewBag.Error = "Wrong Password";
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Error = "Passwords do not match.";
+                return View();
+            }
+
+
+            user.Password = PasswordHelper.HashPassword(newPassword);
+            _userDAO.UpdateUser(user);
+
+            TempData["Notification"] = "Your password has been changed successfully. Please sign in again.";
+            HttpContext.Session.Clear();
+            return RedirectToAction("SignIn", "Authentication");
+        }
+
 
     }
+
 }

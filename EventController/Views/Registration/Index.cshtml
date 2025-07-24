@@ -76,7 +76,7 @@
                         foreach (var item in ViewBag.listRegistration)
                         {
                             <div class="cart-item d-flex gap-3 align-items-center">
-                                <img src="https://source.unsplash.com/featured/?event,@item.EventID"
+                                <img src="@(item.Event.ImageUrl != null ? Url.Content("~/" + item.Event.ImageUrl) : Url.Content("~/img/events/unknown.png"))"
                                      class="cart-img" alt="Event Image" />
                                 <div class="flex-grow-1">
                                     <div class="d-flex justify-content-between align-items-start">

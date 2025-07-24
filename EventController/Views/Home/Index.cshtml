@@ -225,16 +225,24 @@
              <div class="row g-4">
                  @foreach (var item in ViewBag.listVenue)
             {
-               
-                    <div class="col-6 col-md-3">
-                        <div class="card">
-                            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="">
-                            <div class="card-body p-2">
-                                <a asp-action="EventList" asp-controller="Event" asp-route-venueId="@item.VenueID"><h6 class="card-title mb-0 small text-center">@item.Name</h6></a>
+                    <div class="col-6 col-md-3 mb-4">
+                        <div class="card h-100 shadow-sm border-0 hover-shadow">
+                            <a asp-action="EventList" asp-controller="Event" asp-route-venueId="@item.VenueID">
+                                <img src="@(item.Image != null ? Url.Content("~" + item.Image) : Url.Content("~/img/events/unknown.png"))"
+                                     class="card-img-top object-fit-cover"
+                                     style="height: 180px; width: 100%;"
+                                     alt="@item.Name" />
+                            </a>
+                            <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                <a asp-action="EventList" asp-controller="Event" asp-route-venueId="@item.VenueID" class="text-decoration-none text-dark">
+                                    <h6 class="card-title text-center small fw-semibold m-0">@item.Name</h6>
+                                </a>
+                                <p class="text-muted small text-center mb-0" style="min-height: 50px;">
+                                    @((item.Description?.Length > 80) ? item.Description.Substring(0, 80) + "..." : item.Description)
+                                </p>
                             </div>
                         </div>
-                    </div>
-               
+                    </div> 
             } 
             </div>
              
@@ -248,9 +256,11 @@
                 <div class="timeline-item">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
-                        <h5 class="fw-bold">@item.Title</h5>
+                        <a asp-action="Index" asp-controller="Event" asp-route-id="@item.EventID">
+                            <h5 class="fw-bold">@item.Title</h5>
+                        </a>
                         <small class="text-muted">@item.StartTime.ToString("MMM dd, yyyy - HH:mm") → @item.EndTime.ToString("HH:mm")</small>
-                        <p class="mb-1">📍 @item.Venue?.Name</p>
+                            <p class="mb-1">📍 @item.Venue?.Name</p>
                         <span class="badge bg-primary">Upcoming</span>
                     </div>
                 </div>

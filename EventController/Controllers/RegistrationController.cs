@@ -107,7 +107,7 @@ namespace EventController.Controllers
             var user = _userDAO.GetUserByEmail(currentUser.Email);
             if (user.RoleID != 3)
             {
-                TempData["Error"] = "You can register this event";
+                TempData["Error"] = "You can't register this event";
                 return RedirectToAction("Index", "Home");
             }    
             List<Registration> registrations = _registrationDAO.getPendingUserRegistration(user.UserID);

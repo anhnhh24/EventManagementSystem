@@ -13,7 +13,14 @@
             <i class="bi bi-pencil-square me-2"></i> Edit Event
         </h2>
     </div>
-
+    @if (!string.IsNullOrEmpty(ViewBag.Error as string))
+    {
+        <div class="alert alert-info text-center">@ViewBag.Error</div>
+    }
+    @if (!string.IsNullOrEmpty(ViewBag.Notification as string))
+    {
+        <div class="alert-success alert-info text-center">@ViewBag.Notification</div>
+    }
     <form asp-action="EditEvent" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
         <div class="row g-4">
 
