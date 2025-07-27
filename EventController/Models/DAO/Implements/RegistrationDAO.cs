@@ -85,6 +85,16 @@ namespace EventController.Models.DAO.Implements
         {
             return _context.Registrations.Include(r => r.Event).FirstOrDefault(r => r.RegistrationID == Id);
         }
+        public List<User> GetRegisteredUsersForEvent(int eventId)
+        {
+            return _context.Registrations
+                           .Where(r => r.EventID == eventId && r.Status == "Success")
+                           .Include(r => r.User)
+                           .Select(r => r.User)
+                           .Distinct()
+                           .ToList();
+        }
+
 
         public bool IsValidEventAttendees(int eventId, int quantity)
         {

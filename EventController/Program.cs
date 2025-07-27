@@ -26,6 +26,7 @@ builder.Services.AddScoped<EventDAO>();
 builder.Services.AddScoped<UserDAO>();
 builder.Services.AddScoped<VenueDAO>();
 builder.Services.AddScoped<RegistrationDAO>();
+builder.Services.AddScoped<NotificationDAO>();
 builder.Services.AddScoped<EmailVerificationTokenDAO>();
 builder.Services.AddScoped<PaymentDAO>();
 builder.Services.AddScoped<BillDAO>();

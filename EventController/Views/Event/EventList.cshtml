@@ -52,9 +52,9 @@
                 </select>
             </div>
             <div class="col-md-4">
-            <input type="date" name="startDate"
-                   class="form-control"
-                   value="@ViewBag.SelectedDate" />
+                <input type="date" name="startDate"
+                class="form-control"
+                value="@ViewBag.SelectedDate" />
             </div>
             <div class="col-md-4">
                 <select class="form-select" name="categoryId">
@@ -76,11 +76,19 @@
             {
                 <div class="event-list-item d-flex align-items-start gap-3">
                     <img src="@(item.ImageUrl != null ? Url.Content("~/" + item.ImageUrl) : Url.Content("~/img/events/Unknown.png"))"
-                         class="event-image" alt="event" />
+                    class="event-image" alt="event" />
                     <div class="flex-grow-1">
                         <h5 class="fw-bold mb-1">@item.Title</h5>
                         <span class="badge bg-primary mb-2">@item.Category?.CategoryName</span>
                         <p class="mb-1"><i class="bi bi-geo-alt"></i> @item?.Venue.Name</p>
+                        @if(item.Price == 0)
+                        {
+                            <p>Free</p>
+                        }
+                        else
+                        {
+                            <p>@item.Price</p>
+                        }
                         <p class="mb-1"><i class="bi bi-calendar-event"></i> @item.StartTime.ToString("dd MMM yyyy")</p>
                         <p class="mb-2 text-muted">
                             @item.Description?.Substring(0, Math.Min(120, item.Description?.Length ?? 0))...

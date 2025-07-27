@@ -1,10 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EventController.Models.Data.DBcontext;
-using Microsoft.EntityFrameworkCore;
-using EventController.Models.DAO.Implements;
+﻿using EventController.Models.DAO.Implements;
 
 public class EventCheckerService : BackgroundService
 {
@@ -17,18 +11,26 @@ public class EventCheckerService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            using (var scope = _serviceProvider.CreateScope())
+            while (!stoppingToken.IsCancellationRequested)
             {
-                var context = scope.ServiceProvider.GetRequiredService<DBContext>();
-                var eventDAO = new EventDAO(context);
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var eventDAO = scope.ServiceProvider.GetRequiredService<EventDAO>();
+                    var notificationDAO = scope.ServiceProvider.GetRequiredService<NotificationDAO>();
 
-                eventDAO.UpdateEventStatuses();
+                    eventDAO.UpdateEventStatuses();
+                    var listUpcomingEvents = eventDAO.GetEventsInNextWeek();
+                    await notificationDAO.NotifyUsersOfUpcomingEvents();
+                }
+
+                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
             }
-
-            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken); 
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in EventCheckerService: {ex.Message}");
         }
     }
-
 }

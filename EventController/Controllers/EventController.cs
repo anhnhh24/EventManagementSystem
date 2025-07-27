@@ -68,7 +68,6 @@ namespace EventController.Controllers
 
             int totalEvents = query.Count();
             int totalPages = (int)Math.Ceiling((double)totalEvents / pageSize);
-
             if (page > totalPages && totalPages > 0)
                 page = totalPages;
 
@@ -317,7 +316,21 @@ namespace EventController.Controllers
             return View();
         }
 
-
+        public IActionResult Delete(int id)
+        {
+            var evt = _eventDAO.GetEventById(id);
+            if (evt != null && evt.Status == "Inactive")
+            {
+                _eventDAO.DeleteEvent(id);
+                TempData["Notification"] = "Delete event successfully";
+                return RedirectToAction("EventOrganizer", "Event");
+            }
+            else
+            {
+                TempData["Error"] = "You can not delete active event";
+                return RedirectToAction("EventOrganizer", "Event");
+            }
+        }
     }
 
 

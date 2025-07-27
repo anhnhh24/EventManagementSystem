@@ -1,4 +1,5 @@
 ﻿using EventController.Models.Data.DBcontext;
+using EventController.Models.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventController.Models.DAO.Implements
@@ -32,6 +33,17 @@ namespace EventController.Models.DAO.Implements
                            .Include(e => e.Organizer)
                            .Where(e => e.StartTime >= startOfMonth && e.StartTime < startOfNextMonth)
                            .OrderBy(e => e.StartTime)
+                           .ToList();
+        }
+
+        public List<Event> GetAllExpiredEvent()
+        {
+            var now = DateTime.Now;
+            return _context.Events
+                           .Include(e => e.Category)
+                           .Include(e => e.Organizer)
+                           .Where(e => e.Status == "Expired")
+                           .OrderByDescending(e => e.StartTime)
                            .ToList();
         }
 
@@ -91,6 +103,17 @@ namespace EventController.Models.DAO.Implements
                            .Include(e => e.Category)
                            .ToList();
         }
+        public List<Event> GetEventsInNextWeek()
+        {
+            var today = DateTime.UtcNow;
+            var nextWeek = today.AddDays(7);
+
+            return _context.Events
+                           .Where(e => e.StartTime >= today && e.StartTime <= nextWeek)
+                           .OrderBy(e => e.StartTime)
+                           .ToList();
+        }
+
 
         public List<Event> GetUpcomingEvents(DateTime? from = null)
         {
@@ -118,6 +141,8 @@ namespace EventController.Models.DAO.Implements
                                        && e.StartTime >= DateTime.UtcNow)
                            .ToList();
         }
+
+
 
         public IQueryable<Event> GetQueryableEvents()
         {

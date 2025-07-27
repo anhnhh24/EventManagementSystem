@@ -17,6 +17,7 @@ namespace EventController.Models.Data.DBcontext
         public DbSet<Registration> Registrations { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Venue> Venues { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,12 +28,23 @@ namespace EventController.Models.Data.DBcontext
                 new Role { RoleID = 2, RoleName = "Organizer" },
                 new Role { RoleID = 3, RoleName = "Participant" });
 
+            modelBuilder.Entity<Notification>()
+      .HasOne(n => n.User)
+      .WithMany(u => u.Notifications)
+      .HasForeignKey(n => n.UserID)
+      .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.Event)
+                .WithMany(e => e.Notifications)
+                .HasForeignKey(n => n.EventID)
+                .OnDelete(DeleteBehavior.Cascade); 
 
             modelBuilder.Entity<Registration>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.Registrations)
                 .HasForeignKey(r => r.UserID)
-                .OnDelete(DeleteBehavior.Restrict); // Tuỳ chọn giữ cascade ở đây nếu bạn chắc
+                .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<Registration>()
                 .HasOne(r => r.Event)

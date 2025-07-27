@@ -109,7 +109,13 @@ namespace EventController.Controllers
             {
                 TempData["Error"] = "You can't register this event";
                 return RedirectToAction("Index", "Home");
-            }    
+            }
+            var events = _eventDAO.GetEventById(eventId);
+            if(events.Status == "Expired")
+            {
+                TempData["Error"] = "You can't register this event, it's expired";
+                return RedirectToAction("Index", "Home");
+            }
             List<Registration> registrations = _registrationDAO.getPendingUserRegistration(user.UserID);
             var registration = registrations.FirstOrDefault(r => r.EventID == eventId);
             bool success = false;
