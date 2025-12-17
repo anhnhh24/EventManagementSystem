@@ -1,0 +1,223 @@
+using EventController.Models.DAO.Implements;
+using EventController.Models.Entity;
+using EventController.Models.ViewModels;
+using EventController.Util;
+using Microsoft.AspNetCore.Mvc;
+
+namespace EventController.Controllers
+{
+    public class CommentController : Controller
+    {
+        private readonly CommentDAO _commentDAO;
+        private readonly EventDAO _eventDAO;
+        private readonly UserDAO _userDAO;
+
+        public CommentController(CommentDAO commentDAO, EventDAO eventDAO, UserDAO userDAO)
+        {
+            _commentDAO = commentDAO;
+            _eventDAO = eventDAO;
+            _userDAO = userDAO;
+        }
+
+        [HttpGet]
+        public IActionResult GetComments(int eventId)
+        {
+            try
+            {
+                var comments = _commentDAO.GetCommentsByEventId(eventId);
+                var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+                int? currentUserId = null;
+                if (currentUser != null)
+                {
+                    var user = _userDAO.GetUserByEmail(currentUser.Email);
+                    currentUserId = user?.UserID;
+                }
+
+                var commentViewModels = comments.Select(c => MapToViewModel(c, currentUserId)).ToList();
+                
+                return Json(new { success = true, comments = commentViewModels });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error loading comments: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult AddComment(int eventId, string commentText, int? parentCommentId = null)
+        {
+            try
+            {
+                var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+                if (currentUser == null)
+                {
+                    return Json(new { success = false, message = "You must be logged in to comment." });
+                }
+
+                var user = _userDAO.GetUserByEmail(currentUser.Email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found." });
+                }
+
+                if (string.IsNullOrWhiteSpace(commentText))
+                {
+                    return Json(new { success = false, message = "Comment text cannot be empty." });
+                }
+
+                if (commentText.Length > 2000)
+                {
+                    return Json(new { success = false, message = "Comment text cannot exceed 2000 characters." });
+                }
+
+                var evt = _eventDAO.GetEventById(eventId);
+                if (evt == null)
+                {
+                    return Json(new { success = false, message = "Event not found." });
+                }
+
+                var comment = new Comment
+                {
+                    EventID = eventId,
+                    UserID = user.UserID,
+                    CommentText = commentText,
+                    ParentCommentID = parentCommentId,
+                    CreatedAt = DateTime.Now
+                };
+
+                var success = _commentDAO.AddComment(comment);
+                if (success)
+                {
+                    var addedComment = _commentDAO.GetCommentById(comment.CommentID);
+                    var viewModel = MapToViewModel(addedComment, user.UserID);
+                    return Json(new { success = true, comment = viewModel });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to add comment." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error adding comment: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult EditComment(int commentId, string commentText)
+        {
+            try
+            {
+                var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+                if (currentUser == null)
+                {
+                    return Json(new { success = false, message = "You must be logged in." });
+                }
+
+                var user = _userDAO.GetUserByEmail(currentUser.Email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found." });
+                }
+
+                if (string.IsNullOrWhiteSpace(commentText))
+                {
+                    return Json(new { success = false, message = "Comment text cannot be empty." });
+                }
+
+                if (commentText.Length > 2000)
+                {
+                    return Json(new { success = false, message = "Comment text cannot exceed 2000 characters." });
+                }
+
+                var comment = _commentDAO.GetCommentById(commentId);
+                if (comment == null)
+                {
+                    return Json(new { success = false, message = "Comment not found." });
+                }
+
+                if (comment.UserID != user.UserID)
+                {
+                    return Json(new { success = false, message = "You can only edit your own comments." });
+                }
+
+                var success = _commentDAO.UpdateComment(commentId, commentText);
+                if (success)
+                {
+                    return Json(new { success = true, message = "Comment updated successfully." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to update comment." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error updating comment: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DeleteComment(int commentId)
+        {
+            try
+            {
+                var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+                if (currentUser == null)
+                {
+                    return Json(new { success = false, message = "You must be logged in." });
+                }
+
+                var user = _userDAO.GetUserByEmail(currentUser.Email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found." });
+                }
+
+                var comment = _commentDAO.GetCommentById(commentId);
+                if (comment == null)
+                {
+                    return Json(new { success = false, message = "Comment not found." });
+                }
+
+                // Allow deletion if user is the comment owner or admin (RoleID = 1)
+                if (comment.UserID != user.UserID && user.RoleID != 1)
+                {
+                    return Json(new { success = false, message = "You can only delete your own comments." });
+                }
+
+                var success = _commentDAO.DeleteComment(commentId);
+                if (success)
+                {
+                    return Json(new { success = true, message = "Comment deleted successfully." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to delete comment." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error deleting comment: " + ex.Message });
+            }
+        }
+
+        private CommentViewModel MapToViewModel(Comment comment, int? currentUserId)
+        {
+            return new CommentViewModel
+            {
+                CommentID = comment.CommentID,
+                UserID = comment.UserID,
+                UserName = comment.User?.FullName ?? "Unknown User",
+                ProfileImage = comment.User?.ProfileImage ?? "/img/avartars/default-avatar.png",
+                CommentText = comment.CommentText,
+                CreatedAt = comment.CreatedAt,
+                UpdatedAt = comment.UpdatedAt,
+                ParentCommentID = comment.ParentCommentID,
+                CanEdit = currentUserId.HasValue && comment.UserID == currentUserId.Value,
+                CanDelete = currentUserId.HasValue && comment.UserID == currentUserId.Value,
+                Replies = comment.Replies?.Select(r => MapToViewModel(r, currentUserId)).ToList() ?? new List<CommentViewModel>()
+            };
+        }
+    }
+}

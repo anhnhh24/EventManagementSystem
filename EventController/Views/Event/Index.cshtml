@@ -1,4 +1,9 @@
-﻿@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@using EventController.Models.ViewModels
+@using EventController.Util
+@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var currentUser = Context.Session.GetObject<UserViewModel>("currentUser");
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,9 +142,281 @@
                 </div>
             </div>
         </div>
+
+        <!-- Comments Section -->
+        <section class="mt-5">
+            <h5 class="section-title mb-4">💬 Comments</h5>
+            
+            <!-- Add Comment Form -->
+            @if (currentUser != null && !string.IsNullOrEmpty(currentUser.Email))
+            {
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form id="commentForm">
+                            <div class="mb-3">
+                                <textarea class="form-control" id="commentText" rows="3" placeholder="Write your comment here..." maxlength="2000"></textarea>
+                                <small class="text-muted">Maximum 2000 characters</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Post Comment</button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>Please <a href="/Authentication/SignIn">sign in</a> to post a comment.
+                </div>
+            }
+
+            <!-- Comments List -->
+            <div id="commentsList">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Comment JS -->
+    <script>
+        const eventId = @ViewBag.Event.EventID;
+        const currentUserId = @(currentUser != null && !string.IsNullOrEmpty(currentUser.Email) ? "true" : "null");
+        
+        // Load comments on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComments();
+        });
+        
+        // Handle comment form submission
+        @if (currentUser != null && !string.IsNullOrEmpty(currentUser.Email))
+        {
+            <text>
+            document.getElementById('commentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const commentText = document.getElementById('commentText').value.trim();
+                
+                if (!commentText) {
+                    alert('Please enter a comment.');
+                    return;
+                }
+                
+                fetch('/Comment/AddComment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `eventId=${eventId}&commentText=${encodeURIComponent(commentText)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('commentText').value = '';
+                        loadComments();
+                    } else {
+                        alert(data.message || 'Failed to post comment.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while posting the comment.');
+                });
+            });
+            </text>
+        }
+        
+        function loadComments() {
+            fetch(`/Comment/GetComments?eventId=${eventId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayComments(data.comments);
+                    } else {
+                        document.getElementById('commentsList').innerHTML = 
+                            '<div class="alert alert-danger">Failed to load comments.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('commentsList').innerHTML = 
+                        '<div class="alert alert-danger">An error occurred while loading comments.</div>';
+                });
+        }
+        
+        function displayComments(comments) {
+            const commentsList = document.getElementById('commentsList');
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<div class="alert alert-light">No comments yet. Be the first to comment!</div>';
+                return;
+            }
+            
+            let html = '';
+            comments.forEach(comment => {
+                html += renderComment(comment);
+            });
+            
+            commentsList.innerHTML = html;
+        }
+        
+        function renderComment(comment) {
+            const timeAgo = getTimeAgo(new Date(comment.createdAt));
+            const edited = comment.updatedAt ? ' (edited)' : '';
+            
+            let html = `
+                <div class="card mb-3 comment-card" data-comment-id="${comment.commentID}">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <img src="${comment.profileImage}" class="comment-avatar me-3" alt="${comment.userName}">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <strong>${comment.userName}</strong>
+                                        <small class="text-muted ms-2">${timeAgo}${edited}</small>
+                                    </div>
+                                    ${comment.canEdit || comment.canDelete ? `
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            ${comment.canEdit ? `<li><a class="dropdown-item" href="#" onclick="editComment(${comment.commentID}); return false;"><i class="bi bi-pencil me-2"></i>Edit</a></li>` : ''}
+                                            ${comment.canDelete ? `<li><a class="dropdown-item text-danger" href="#" onclick="deleteComment(${comment.commentID}); return false;"><i class="bi bi-trash me-2"></i>Delete</a></li>` : ''}
+                                        </ul>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                                <p class="mb-0 comment-text">${escapeHtml(comment.commentText)}</p>
+                                <div class="comment-edit-form" style="display: none;">
+                                    <textarea class="form-control mb-2" rows="3">${escapeHtml(comment.commentText)}</textarea>
+                                    <button class="btn btn-sm btn-primary" onclick="saveEdit(${comment.commentID})">Save</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="cancelEdit(${comment.commentID})">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        function editComment(commentId) {
+            const card = document.querySelector(`[data-comment-id="${commentId}"]`);
+            card.querySelector('.comment-text').style.display = 'none';
+            card.querySelector('.comment-edit-form').style.display = 'block';
+        }
+        
+        function cancelEdit(commentId) {
+            const card = document.querySelector(`[data-comment-id="${commentId}"]`);
+            card.querySelector('.comment-text').style.display = 'block';
+            card.querySelector('.comment-edit-form').style.display = 'none';
+        }
+        
+        function saveEdit(commentId) {
+            const card = document.querySelector(`[data-comment-id="${commentId}"]`);
+            const newText = card.querySelector('.comment-edit-form textarea').value.trim();
+            
+            if (!newText) {
+                alert('Comment cannot be empty.');
+                return;
+            }
+            
+            fetch('/Comment/EditComment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `commentId=${commentId}&commentText=${encodeURIComponent(newText)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadComments();
+                } else {
+                    alert(data.message || 'Failed to update comment.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the comment.');
+            });
+        }
+        
+        function deleteComment(commentId) {
+            if (!confirm('Are you sure you want to delete this comment?')) {
+                return;
+            }
+            
+            fetch('/Comment/DeleteComment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `commentId=${commentId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadComments();
+                } else {
+                    alert(data.message || 'Failed to delete comment.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the comment.');
+            });
+        }
+        
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            
+            return "just now";
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+    
+    <style>
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .comment-card {
+            transition: box-shadow 0.2s;
+        }
+        
+        .comment-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
 </body>
 </html>

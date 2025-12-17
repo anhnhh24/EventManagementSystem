@@ -30,6 +30,7 @@ builder.Services.AddScoped<NotificationDAO>();
 builder.Services.AddScoped<EmailVerificationTokenDAO>();
 builder.Services.AddScoped<PaymentDAO>();
 builder.Services.AddScoped<BillDAO>();
+builder.Services.AddScoped<CommentDAO>();
 
 var app = builder.Build();
 
