@@ -98,9 +98,10 @@ namespace EventController.Models.DAO.Implements
         public List<Event> GetEventsByOrganizer(int organizerId)
         {
             return _context.Events
-                           .Where(e => e.OrganizerID == organizerId && e.StartTime >= DateTime.UtcNow)
+                           .Where(e => e.OrganizerID == organizerId)
                            .Include(e => e.Venue)
                            .Include(e => e.Category)
+                           .OrderByDescending(e => e.CreatedAt)
                            .ToList();
         }
         public List<Event> GetEventsInNextWeek()

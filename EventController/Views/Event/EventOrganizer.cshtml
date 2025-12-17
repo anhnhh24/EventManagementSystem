@@ -35,7 +35,7 @@
 
     <div class="container mt-4">
 
-        <h5 class="mb-3">EVENT LIST</h5>
+        <h5 class="mb-3">MY EVENTS</h5>
         @if (TempData["Error"] != null)
         {
             <div class="alert alert-danger text-center">@TempData["Error"]</div>
@@ -45,6 +45,19 @@
         {
             <div class="alert alert-success text-center">@TempData["Notification"]</div>
         }
+
+        <!-- Status Legend -->
+        <div class="alert alert-light border mb-3">
+            <small class="text-muted">
+                <strong>Event Status:</strong>
+                <span class="badge bg-secondary ms-2">Inactive</span> Awaiting admin approval
+                <span class="badge bg-warning text-dark ms-2">Pending</span> Under review
+                <span class="badge bg-info text-dark ms-2">Upcoming</span> Approved & scheduled
+                <span class="badge bg-success ms-2">Active</span> Currently running
+                <span class="badge bg-danger ms-2">Expired</span> Ended
+            </small>
+        </div>
+
         <!-- Sort controls -->
         <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
             <span>Sorting order:</span>
@@ -107,8 +120,21 @@
 
                                 <td>@end.ToString("dd MMM yyyy - hh:mm tt")</td>
 
-                                <!-- Duration -->
-                                <td>@item.Status</td>
+                                <!-- Status -->
+                                <td>
+                                    @{
+                                        var statusClass = item.Status switch
+                                        {
+                                            "Inactive" => "badge bg-secondary",
+                                            "Pending" => "badge bg-warning text-dark",
+                                            "Upcoming" => "badge bg-info text-dark",
+                                            "Active" => "badge bg-success",
+                                            "Expired" => "badge bg-danger",
+                                            _ => "badge bg-secondary"
+                                        };
+                                    }
+                                    <span class="@statusClass">@item.Status</span>
+                                </td>
 
                                 <!-- Attendees -->
                                 <td>

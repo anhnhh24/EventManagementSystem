@@ -45,7 +45,21 @@
 </style>
 
 <div class="container-fluid py-5 bg-light min-vh-100">
-    <!-- Filters + Actions -->
+    <!-- Notifications -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Notification"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Notification"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
     <!-- User Table -->
     <div class="card shadow-sm card-table border-0">
@@ -60,6 +74,7 @@
                         <th>Status</th>
                         <th>Role</th>
                         <th>Joined</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,11 +98,23 @@
                             </td>
                             <td>@user.Role?.RoleName</td>
                             <td>@user.DateJoined.ToString("MMM dd, yyyy")</td>
-                            @* <td>@user.DateJoined.ToString("HH:mm tt")</td> *@
-                            @* <td class="text-end"> *@
-                            @*     <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-fill"></i></button> *@
-                            @*     <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash-fill"></i></button> *@
-                            @* </td> *@
+                            <td class="text-end">
+                                @if (user.Status == "Active")
+                                {
+                                    <a asp-action="DeactivateUser" asp-route-id="@user.UserID" 
+                                       class="btn btn-sm btn-warning" 
+                                       onclick="return confirm('Are you sure you want to deactivate this user?');">
+                                        <i class="bi bi-x-circle"></i> Deactivate
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="ActivateUser" asp-route-id="@user.UserID" 
+                                       class="btn btn-sm btn-success">
+                                        <i class="bi bi-check-circle"></i> Activate
+                                    </a>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>

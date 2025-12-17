@@ -276,8 +276,8 @@ namespace EventController.Controllers
             };
 
             _eventDAO.AddEvent(evt);
-            ViewBag.Notification = "Event create successfully";
-            return RedirectToAction("EventList");
+            TempData["Notification"] = "Event created successfully. Waiting for admin approval.";
+            return RedirectToAction("EventOrganizer", "Event");
         }
 
         public IActionResult EventOrganizer(string sortBy)

@@ -84,7 +84,11 @@ namespace EventController.Controllers
             string tmnCode = _configuration["VNPay:TmnCode"];
             string hashSecret = _configuration["VNPay:HashSecret"];
             string vnpUrl = _configuration["VNPay:Url"];
-            string returnUrl = $"{_configuration["VNPay:ReturnUrl"]}?billId={BillId}";
+            
+            // Build return URL dynamically based on current request
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            string returnUrl = $"{baseUrl}/Payment/ReturnPayment?billId={BillId}";
+            
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
 
             var payParams = new SortedDictionary<string, string>

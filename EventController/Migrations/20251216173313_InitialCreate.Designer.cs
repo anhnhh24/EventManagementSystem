@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventController.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20250709155512_EditDB13")]
-    partial class EditDB13
+    [Migration("20251216173313_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,35 @@ namespace EventController.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Bill", b =>
+                {
+                    b.Property<int>("BillID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BillID"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<long>("TotalAmount")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BillID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Bills");
+                });
 
             modelBuilder.Entity("Event", b =>
                 {
@@ -36,6 +65,12 @@ namespace EventController.Migrations
                     b.Property<int>("CategoryID")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CurrentAttendees")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -44,10 +79,6 @@ namespace EventController.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -89,10 +120,10 @@ namespace EventController.Migrations
                         {
                             EventID = 2,
                             CategoryID = 3,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "An evening talk on mindfulness & wellbeing.",
                             EndTime = new DateTime(2025, 10, 12, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/mindfulness.jpg",
-                            Location = "Riverside Hotel, HCM",
                             MaxAttendees = 300,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -105,10 +136,10 @@ namespace EventController.Migrations
                         {
                             EventID = 3,
                             CategoryID = 4,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Latest AI research & enterprise applications.",
                             EndTime = new DateTime(2025, 11, 12, 18, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/ai-conf.jpg",
-                            Location = "SECC, District 7",
                             MaxAttendees = 1500,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -121,10 +152,10 @@ namespace EventController.Migrations
                         {
                             EventID = 4,
                             CategoryID = 5,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "5 km charity run for children's hospitals.",
                             EndTime = new DateTime(2025, 10, 5, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/charity-run.jpg",
-                            Location = "Thảo Cầm Viên, HCM",
                             MaxAttendees = 5000,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -137,10 +168,10 @@ namespace EventController.Migrations
                         {
                             EventID = 5,
                             CategoryID = 6,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Taste 100+ dishes from local vendors.",
                             EndTime = new DateTime(2025, 8, 22, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/food-fest.jpg",
-                            Location = "September 23 Park",
                             MaxAttendees = 8000,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -153,10 +184,10 @@ namespace EventController.Migrations
                         {
                             EventID = 6,
                             CategoryID = 7,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Showcase of contemporary Vietnamese artists.",
                             EndTime = new DateTime(2025, 7, 30, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/art-expo.jpg",
-                            Location = "Fine Arts Museum, HCM",
                             MaxAttendees = 300,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -169,10 +200,10 @@ namespace EventController.Migrations
                         {
                             EventID = 7,
                             CategoryID = 8,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Pitch session for early‑stage startups.",
                             EndTime = new DateTime(2025, 9, 15, 18, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/demo-day.jpg",
-                            Location = "Đà Nẵng Tech Park",
                             MaxAttendees = 200,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -185,10 +216,10 @@ namespace EventController.Migrations
                         {
                             EventID = 8,
                             CategoryID = 9,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Fund‑raising dinner with live auction.",
                             EndTime = new DateTime(2025, 12, 12, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/gala.jpg",
-                            Location = "Saigon Opera House",
                             MaxAttendees = 400,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -201,10 +232,10 @@ namespace EventController.Migrations
                         {
                             EventID = 9,
                             CategoryID = 10,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Enjoy a classic under the stars.",
                             EndTime = new DateTime(2025, 6, 28, 22, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/movie-night.jpg",
-                            Location = "Crescent Lake Park, D7",
                             MaxAttendees = 1000,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -217,10 +248,10 @@ namespace EventController.Migrations
                         {
                             EventID = 10,
                             CategoryID = 2,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Learn to solve problems creatively.",
                             EndTime = new DateTime(2025, 8, 25, 17, 0, 0, 0, DateTimeKind.Unspecified),
                             ImageUrl = "/img/events/design-thinking.jpg",
-                            Location = "Indochina Riverside, Đà Nẵng",
                             MaxAttendees = 60,
                             OrganizerID = 2,
                             Price = 1900000L,
@@ -410,7 +441,7 @@ namespace EventController.Migrations
                         {
                             UserID = 1,
                             Address = "123 Admin St, HCMC",
-                            DateJoined = new DateTime(2025, 7, 9, 22, 55, 11, 882, DateTimeKind.Local).AddTicks(384),
+                            DateJoined = new DateTime(2025, 12, 17, 0, 33, 13, 417, DateTimeKind.Local).AddTicks(6037),
                             DoB = new DateTime(1992, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "alice.admin@example.com",
                             FullName = "Alice Admin",
@@ -426,7 +457,7 @@ namespace EventController.Migrations
                         {
                             UserID = 2,
                             Address = "456 Organizer Ave, Da Nang",
-                            DateJoined = new DateTime(2025, 7, 9, 22, 55, 11, 882, DateTimeKind.Local).AddTicks(389),
+                            DateJoined = new DateTime(2025, 12, 17, 0, 33, 13, 417, DateTimeKind.Local).AddTicks(6043),
                             DoB = new DateTime(1988, 7, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "bob.organizer@example.com",
                             FullName = "Bob Organizer",
@@ -442,7 +473,7 @@ namespace EventController.Migrations
                         {
                             UserID = 3,
                             Address = "789 Participant Rd, Hanoi",
-                            DateJoined = new DateTime(2025, 7, 9, 22, 55, 11, 882, DateTimeKind.Local).AddTicks(392),
+                            DateJoined = new DateTime(2025, 12, 17, 0, 33, 13, 417, DateTimeKind.Local).AddTicks(6046),
                             DoB = new DateTime(2000, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "charlie.participant@example.com",
                             FullName = "Charlie Participant",
@@ -454,64 +485,6 @@ namespace EventController.Migrations
                             RoleID = 3,
                             Status = "Active"
                         });
-                });
-
-            modelBuilder.Entity("EventNote", b =>
-                {
-                    b.Property<int>("NoteID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NoteID"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EventID")
-                        .HasColumnType("int");
-
-                    b.HasKey("NoteID");
-
-                    b.HasIndex("EventID");
-
-                    b.ToTable("EventNotes");
-                });
-
-            modelBuilder.Entity("Feedback", b =>
-                {
-                    b.Property<int>("FeedbackID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeedbackID"));
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateSubmitted")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EventID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
-
-                    b.HasKey("FeedbackID");
-
-                    b.HasIndex("EventID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("Feedback");
                 });
 
             modelBuilder.Entity("Notification", b =>
@@ -558,43 +531,17 @@ namespace EventController.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("BankCode")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int>("BillID")
+                        .HasColumnType("int");
 
-                    b.Property<string>("CardType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("InvoiceURL")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("ExpireTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("OrderInfo")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PaymentTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("RefundStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RegistrationID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SecureHash")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -602,13 +549,11 @@ namespace EventController.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("TransactionCode")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PaymentID");
 
-                    b.HasIndex("RegistrationID")
+                    b.HasIndex("BillID")
                         .IsUnique();
 
                     b.ToTable("Payments");
@@ -622,13 +567,13 @@ namespace EventController.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RegistrationID"));
 
-                    b.Property<DateTime?>("CheckInTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("CheckedIn")
-                        .HasColumnType("bit");
+                    b.Property<int?>("BillID")
+                        .HasColumnType("int");
 
                     b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("RegisterDate")
@@ -638,10 +583,15 @@ namespace EventController.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
                     b.HasKey("RegistrationID");
+
+                    b.HasIndex("BillID");
 
                     b.HasIndex("EventID");
 
@@ -746,6 +696,17 @@ namespace EventController.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Bill", b =>
+                {
+                    b.HasOne("EventController.Models.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Event", b =>
                 {
                     b.HasOne("EventCategory", "Category")
@@ -793,36 +754,6 @@ namespace EventController.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("EventNote", b =>
-                {
-                    b.HasOne("Event", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-                });
-
-            modelBuilder.Entity("Feedback", b =>
-                {
-                    b.HasOne("Event", "Event")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EventController.Models.Entity.User", "User")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Notification", b =>
                 {
                     b.HasOne("Event", "Event")
@@ -844,17 +775,21 @@ namespace EventController.Migrations
 
             modelBuilder.Entity("Payment", b =>
                 {
-                    b.HasOne("Registration", "Registration")
+                    b.HasOne("Bill", "Bill")
                         .WithOne("Payment")
-                        .HasForeignKey("Payment", "RegistrationID")
+                        .HasForeignKey("Payment", "BillID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Registration");
+                    b.Navigation("Bill");
                 });
 
             modelBuilder.Entity("Registration", b =>
                 {
+                    b.HasOne("Bill", "Bill")
+                        .WithMany("Registrations")
+                        .HasForeignKey("BillID");
+
                     b.HasOne("Event", "Event")
                         .WithMany("Registrations")
                         .HasForeignKey("EventID")
@@ -867,15 +802,23 @@ namespace EventController.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Bill");
+
                     b.Navigation("Event");
 
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Bill", b =>
+                {
+                    b.Navigation("Payment")
+                        .IsRequired();
+
+                    b.Navigation("Registrations");
+                });
+
             modelBuilder.Entity("Event", b =>
                 {
-                    b.Navigation("Feedbacks");
-
                     b.Navigation("Notifications");
 
                     b.Navigation("Registrations");
@@ -888,19 +831,11 @@ namespace EventController.Migrations
 
             modelBuilder.Entity("EventController.Models.Entity.User", b =>
                 {
-                    b.Navigation("Feedbacks");
-
                     b.Navigation("Notifications");
 
                     b.Navigation("OrganizedEvents");
 
                     b.Navigation("Registrations");
-                });
-
-            modelBuilder.Entity("Registration", b =>
-                {
-                    b.Navigation("Payment")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Role", b =>

@@ -20,8 +20,45 @@ namespace EventController.Controllers
             _eventCategoryDAO = eventCategory;
             _eventDAO = eventDAO;
         }
+        
+        public IActionResult Index()
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to access admin panel.";
+                return RedirectToAction("Index", "Home");
+            }
+            
+            // Dashboard overview
+            ViewBag.TotalUsers = _userDAO.GetAllUsers().Count;
+            ViewBag.TotalEvents = _eventDAO.GetAllEvents().Count;
+            ViewBag.ActiveEvents = _eventDAO.GetAllEvents().Count(e => e.Status == "Active");
+            ViewBag.PendingEvents = _eventDAO.GetAllEvents().Count(e => e.Status == "Inactive");
+            ViewBag.UpcomingEvents = _eventDAO.GetAllEvents().Count(e => e.Status == "Upcoming");
+            ViewBag.CancelledEvents = _eventDAO.GetAllEvents().Count(e => e.Status == "Cancelled");
+            return View();
+        }
+
         public IActionResult UserAdmin()
         {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to access admin panel.";
+                return RedirectToAction("Index", "Home");
+            }
+            
             var users = _userDAO.GetAllUsers();
             ViewBag.listUser = users;
             return View();
@@ -29,6 +66,18 @@ namespace EventController.Controllers
 
         public IActionResult EventAdmin(string status, int? category)
         {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to access admin panel.";
+                return RedirectToAction("Index", "Home");
+            }
+            
             var events = _eventDAO.GetAllEvents();
 
             if (category.HasValue)
@@ -48,11 +97,122 @@ namespace EventController.Controllers
 
         public IActionResult AcceptEvent(int id)
         {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to perform this action.";
+                return RedirectToAction("Index", "Home");
+            }
+            
             var events = _eventDAO.GetEventById(id);
 
             events.Status = "Upcoming";
 
             _eventDAO.UpdateEvent(events);
+            return RedirectToAction("EventAdmin", "Admin");
+        }
+
+        public IActionResult ActivateUser(int id)
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to perform this action.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var user = _userDAO.GetUserById(id);
+            if (user != null)
+            {
+                user.Status = "Active";
+                _userDAO.UpdateUser(user);
+                TempData["Notification"] = $"User {user.FullName} has been activated.";
+            }
+            else
+            {
+                TempData["Error"] = "User not found.";
+            }
+
+            return RedirectToAction("UserAdmin", "Admin");
+        }
+
+        public IActionResult DeactivateUser(int id)
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to perform this action.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var user = _userDAO.GetUserById(id);
+            if (user != null)
+            {
+                if (user.RoleID == 1)
+                {
+                    TempData["Error"] = "Cannot deactivate admin users.";
+                    return RedirectToAction("UserAdmin", "Admin");
+                }
+
+                user.Status = "Inactive";
+                _userDAO.UpdateUser(user);
+                TempData["Notification"] = $"User {user.FullName} has been deactivated.";
+            }
+            else
+            {
+                TempData["Error"] = "User not found.";
+            }
+
+            return RedirectToAction("UserAdmin", "Admin");
+        }
+
+        public IActionResult CancelEvent(int id)
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to perform this action.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var evt = _eventDAO.GetEventById(id);
+            if (evt != null)
+            {
+                if (evt.Status == "Expired")
+                {
+                    TempData["Error"] = "Cannot cancel an expired event.";
+                    return RedirectToAction("EventAdmin", "Admin");
+                }
+
+                evt.Status = "Cancelled";
+                _eventDAO.UpdateEvent(evt);
+                TempData["Notification"] = $"Event '{evt.Title}' has been cancelled.";
+            }
+            else
+            {
+                TempData["Error"] = "Event not found.";
+            }
+
             return RedirectToAction("EventAdmin", "Admin");
         }
 

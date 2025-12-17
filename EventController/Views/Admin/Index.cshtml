@@ -1,0 +1,166 @@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <h2 class="mb-4">📊 Admin Dashboard</h2>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <!-- Total Users -->
+            <div class="col-md-3">
+                <div class="card text-white bg-primary shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-uppercase mb-1">Total Users</h6>
+                                <h2 class="mb-0">@ViewBag.TotalUsers</h2>
+                            </div>
+                            <div class="fs-1 opacity-50">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a asp-action="UserAdmin" class="text-white text-decoration-none">
+                            View Details <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Events -->
+            <div class="col-md-3">
+                <div class="card text-white bg-success shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-uppercase mb-1">Total Events</h6>
+                                <h2 class="mb-0">@ViewBag.TotalEvents</h2>
+                            </div>
+                            <div class="fs-1 opacity-50">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a asp-action="EventAdmin" class="text-white text-decoration-none">
+                            View All <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Events -->
+            <div class="col-md-3">
+                <div class="card text-white bg-info shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-uppercase mb-1">Active Events</h6>
+                                <h2 class="mb-0">@ViewBag.ActiveEvents</h2>
+                            </div>
+                            <div class="fs-1 opacity-50">
+                                <i class="bi bi-lightning-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a asp-action="EventAdmin" asp-route-status="Active" class="text-white text-decoration-none">
+                            View Active <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Events -->
+            <div class="col-md-3">
+                <div class="card text-white bg-warning shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-uppercase mb-1">Pending Approval</h6>
+                                <h2 class="mb-0">@ViewBag.PendingEvents</h2>
+                            </div>
+                            <div class="fs-1 opacity-50">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a asp-action="EventAdmin" asp-route-status="Inactive" class="text-white text-decoration-none">
+                            Review Now <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">⚡ Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a asp-action="UserAdmin" class="btn btn-outline-primary">
+                                <i class="bi bi-people me-2"></i> Manage Users
+                            </a>
+                            <a asp-action="EventAdmin" class="btn btn-outline-success">
+                                <i class="bi bi-calendar-check me-2"></i> Manage Events
+                            </a>
+                            <a asp-action="EventAdmin" asp-route-status="Inactive" class="btn btn-outline-warning">
+                                <i class="bi bi-clipboard-check me-2"></i> Approve Events
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Status Overview -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">📈 Event Status Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <h3 class="text-primary">@ViewBag.UpcomingEvents</h3>
+                                    <p class="text-muted mb-0">Upcoming Events</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <h3 class="text-success">@ViewBag.ActiveEvents</h3>
+                                    <p class="text-muted mb-0">Currently Active</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <h3 class="text-warning">@ViewBag.PendingEvents</h3>
+                                    <p class="text-muted mb-0">Awaiting Approval</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

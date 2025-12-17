@@ -33,28 +33,32 @@ namespace EventController.Controllers
                     ViewBag.Error = "Email or password invalid";
                     return View();
                 }
+
+                // Check if user account is inactive
+                if (existingUser.Status != "Active")
+                {
+                    ViewBag.Error = "Your account has been deactivated. Please contact administrator.";
+                    return View();
+                }
+
+                UserViewModel SessionUser = new UserViewModel
+                {
+                    FullName = existingUser.FullName,
+                    Email = existingUser.Email,
+                    Address = existingUser.Address,
+                    DoB = existingUser.DoB,
+                    Phone = existingUser.Phone,
+                    RoleID = existingUser.RoleID,
+                    ProfileImage = existingUser.ProfileImage
+                };
+                HttpContext.Session.SetObject("currentUser", SessionUser);
+                if (existingUser.RoleID == 1)
+                {
+                    return RedirectToAction("Index", "Admin");
+                }
                 else
                 {
-                    UserViewModel SessionUser = new UserViewModel
-                    {
-                        FullName = existingUser.FullName,
-                        Email = existingUser.Email,
-                        Address = existingUser.Address,
-                        DoB = existingUser.DoB,
-                        Phone = existingUser.Phone,
-                        RoleID = existingUser.RoleID,
-                        ProfileImage = existingUser.ProfileImage
-                    };
-                    HttpContext.Session.SetObject("currentUser", SessionUser);
-                    if (existingUser.RoleID == 1)
-                    {
-                        return RedirectToAction("UserAdmin", "Admin");
-
-                    }
-                    else
-                    {
-                        return RedirectToAction("Index", "Home");
-                    }
+                    return RedirectToAction("Index", "Home");
                 }
             }
             return View();
