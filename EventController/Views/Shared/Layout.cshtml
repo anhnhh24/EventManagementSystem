@@ -46,6 +46,7 @@
                         @if (user.RoleID == 3)
                         {
                             <li><a class="nav-link active" asp-controller="Registration" asp-action="Index">Cart</a></li>
+                            <li><a class="nav-link active" asp-controller="Ticket" asp-action="Index">My Tickets</a></li>
                             <li><a class ="nav-link active" asp-controller="Bill" asp-action="Index">Bill</a></li>
                         }
                     </ul>
@@ -261,6 +262,8 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const el = document.getElementById("userMenu");
@@ -268,6 +271,29 @@
                 new bootstrap.Dropdown(el);
             }
         });
+        
+        // Global SignalR connection for notifications
+        @if (!string.IsNullOrEmpty(user.Email))
+        {
+            <text>
+            const notificationConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .build();
+
+            notificationConnection.on("ReceiveEventStatusUpdate", (data) => {
+                console.log("Event status update:", data);
+                // Optionally show a toast notification or update UI
+            });
+
+            notificationConnection.start()
+                .then(() => {
+                    console.log("Connected to NotificationHub");
+                    // Join user-specific group if needed (use Email as identifier)
+                    // notificationConnection.invoke("JoinUserGroup", "@user.Email");
+                })
+                .catch(err => console.error("NotificationHub connection error:", err));
+            </text>
+        }
     </script>
 </body>
 </html>

@@ -19,6 +19,7 @@ namespace EventController.Models.Data.DBcontext
         public DbSet<Venue> Venues { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -362,6 +363,29 @@ namespace EventController.Models.Data.DBcontext
        }
    );
 
+            // Configure Ticket relationships to avoid cascade delete conflicts
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.User)
+                .WithMany(u => u.Tickets)
+                .HasForeignKey(t => t.UserID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Event)
+                .WithMany(e => e.Tickets)
+                .HasForeignKey(t => t.EventID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Registration)
+                .WithMany(r => r.Tickets)
+                .HasForeignKey(t => t.RegistrationID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Ensure UniqueCode is unique
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => t.UniqueCode)
+                .IsUnique();
 
         }
 

@@ -2,7 +2,9 @@ using EventController.Models.DAO.Implements;
 using EventController.Models.Entity;
 using EventController.Models.ViewModels;
 using EventController.Util;
+using EventController.Hubs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace EventController.Controllers
 {
@@ -12,13 +14,15 @@ namespace EventController.Controllers
         private readonly EventDAO _eventDAO;
         private readonly UserDAO _userDAO;
         private readonly RegistrationDAO _registrationDAO;
+        private readonly IHubContext<CommentHub> _commentHub;
 
-        public CommentController(CommentDAO commentDAO, EventDAO eventDAO, UserDAO userDAO, RegistrationDAO registrationDAO)
+        public CommentController(CommentDAO commentDAO, EventDAO eventDAO, UserDAO userDAO, RegistrationDAO registrationDAO, IHubContext<CommentHub> commentHub)
         {
             _commentDAO = commentDAO;
             _eventDAO = eventDAO;
             _userDAO = userDAO;
             _registrationDAO = registrationDAO;
+            _commentHub = commentHub;
         }
 
         [HttpGet]
@@ -46,7 +50,7 @@ namespace EventController.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddComment(int eventId, string commentText, int? parentCommentId = null)
+        public async Task<IActionResult> AddComment(int eventId, string commentText, int? parentCommentId = null)
         {
             try
             {
@@ -98,6 +102,10 @@ namespace EventController.Controllers
                 {
                     var addedComment = _commentDAO.GetCommentById(comment.CommentID);
                     var viewModel = MapToViewModel(addedComment, user.UserID);
+                    
+                    // Broadcast new comment to all users viewing this event
+                    await _commentHub.Clients.Group($"event_{eventId}").SendAsync("ReceiveComment", viewModel);
+                    
                     return Json(new { success = true, comment = viewModel });
                 }
                 else
@@ -112,7 +120,7 @@ namespace EventController.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditComment(int commentId, string commentText)
+        public async Task<IActionResult> EditComment(int commentId, string commentText)
         {
             try
             {
@@ -152,6 +160,14 @@ namespace EventController.Controllers
                 var success = _commentDAO.UpdateComment(commentId, commentText);
                 if (success)
                 {
+                    // Broadcast comment update to all users viewing this event
+                    await _commentHub.Clients.Group($"event_{comment.EventID}").SendAsync("UpdateComment", new
+                    {
+                        commentId = commentId,
+                        commentText = commentText,
+                        updatedAt = DateTime.Now
+                    });
+                    
                     return Json(new { success = true, message = "Comment updated successfully." });
                 }
                 else
@@ -166,7 +182,7 @@ namespace EventController.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteComment(int commentId)
+        public async Task<IActionResult> DeleteComment(int commentId)
         {
             try
             {
@@ -197,6 +213,9 @@ namespace EventController.Controllers
                 var success = _commentDAO.DeleteComment(commentId);
                 if (success)
                 {
+                    // Broadcast comment deletion to all users viewing this event
+                    await _commentHub.Clients.Group($"event_{comment.EventID}").SendAsync("DeleteComment", commentId);
+                    
                     return Json(new { success = true, message = "Comment deleted successfully." });
                 }
                 else

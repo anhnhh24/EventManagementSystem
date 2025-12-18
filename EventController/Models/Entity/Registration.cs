@@ -26,4 +26,6 @@ public class Registration
 
     public int? BillID { get; set; }
     public virtual Bill Bill { get; set; }
+
+    public virtual ICollection<Ticket> Tickets { get; set; }
 }

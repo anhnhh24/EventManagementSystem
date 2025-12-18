@@ -14,7 +14,8 @@ namespace EventController.Controllers
         VenueDAO _venueDAO;
         UserDAO _userDAO;
         RegistrationDAO _registrationDAO;
-        public EventController(ILogger<EventController> logger, EventDAO eventDAO, EventCategoryDAO categoryDAO, VenueDAO venueDAO, UserDAO userDAO, RegistrationDAO registrationDAO)
+        TicketDAO _ticketDAO;
+        public EventController(ILogger<EventController> logger, EventDAO eventDAO, EventCategoryDAO categoryDAO, VenueDAO venueDAO, UserDAO userDAO, RegistrationDAO registrationDAO, TicketDAO ticketDAO)
         {
             _logger = logger;
             _eventDAO = eventDAO;
@@ -22,6 +23,7 @@ namespace EventController.Controllers
             _venueDAO = venueDAO;
             _userDAO = userDAO;
             _registrationDAO = registrationDAO;
+            _ticketDAO = ticketDAO;
         }
 
         public IActionResult Index(int id)
@@ -31,7 +33,13 @@ namespace EventController.Controllers
                 var evt = _eventDAO.GetEventById(id);
                 if (evt == null)
                     return RedirectToAction("Index", "Home");
+                
+                // Count tickets sold (excluding cancelled tickets)
+                var ticketsSold = _ticketDAO.GetTicketsByEvent(id)
+                    .Count(t => t.Status != "Cancelled");
+                
                 ViewBag.Event = evt;
+                ViewBag.TicketsSold = ticketsSold;
             }
             return View();
         }

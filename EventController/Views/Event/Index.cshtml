@@ -101,12 +101,14 @@
                             <p class="mb-1"><span class="info-label">📍 Location:</span> @ViewBag.Event.Venue.Address</p>
                             @if (ViewBag.Event.MaxAttendees != null)
                             {
-                                var availableSlots = ViewBag.Event.MaxAttendees - ViewBag.Event.CurrentAttendees;
-                                <p class="mb-1"><span class="info-label">🎫 Available Slots:</span> <strong>@availableSlots / @ViewBag.Event.MaxAttendees</strong></p>
+                                var ticketsSold = ViewBag.TicketsSold ?? 0;
+                                var availableSlots = ViewBag.Event.MaxAttendees - ticketsSold;
+                                <p class="mb-1 available-slots"><span class="info-label">🎫 Available Slots:</span> <strong>@availableSlots / @ViewBag.Event.MaxAttendees</strong> <span class="text-muted">(@ticketsSold tickets sold)</span></p>
                             }
                             else
                             {
-                                <p class="mb-1"><span class="info-label">🎫 Available Slots:</span> <strong>Unlimited</strong></p>
+                                var ticketsSold = ViewBag.TicketsSold ?? 0;
+                                <p class="mb-1 available-slots"><span class="info-label">🎫 Available Slots:</span> <strong>Unlimited</strong> <span class="text-muted">(@ticketsSold tickets sold)</span></p>
                             }
                             <p class="price mb-3">💵 @ViewBag.Event.Price.ToString("N0") VND</p>
                         </div>
@@ -318,8 +320,25 @@
                                     <button class="btn btn-sm btn-primary" onclick="saveEdit(${comment.commentID})">Save</button>
                                     <button class="btn btn-sm btn-secondary" onclick="cancelEdit(${comment.commentID})">Cancel</button>
                                 </div>
+                                ${currentUserId ? `
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-link text-primary p-0" onclick="showReplyForm(${comment.commentID}); return false;">
+                                        <i class="bi bi-reply me-1"></i>Reply
+                                    </button>
+                                </div>
+                                <div class="reply-form mt-2" id="reply-form-${comment.commentID}" style="display: none;">
+                                    <textarea class="form-control mb-2" rows="2" placeholder="Write your reply..."></textarea>
+                                    <button class="btn btn-sm btn-primary" onclick="submitReply(${comment.commentID})">Post Reply</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="cancelReply(${comment.commentID})">Cancel</button>
+                                </div>
+                                ` : ''}
                             </div>
                         </div>
+                        ${comment.replies && comment.replies.length > 0 ? `
+                        <div class="ms-5 mt-3">
+                            ${comment.replies.map(reply => renderComment(reply)).join('')}
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -395,6 +414,59 @@
             });
         }
         
+        function showReplyForm(commentId) {
+            // Hide all other reply forms
+            document.querySelectorAll('.reply-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            // Show the reply form for this comment
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            if (replyForm) {
+                replyForm.style.display = 'block';
+                replyForm.querySelector('textarea').focus();
+            }
+        }
+        
+        function cancelReply(commentId) {
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            if (replyForm) {
+                replyForm.style.display = 'none';
+                replyForm.querySelector('textarea').value = '';
+            }
+        }
+        
+        function submitReply(parentCommentId) {
+            const replyForm = document.getElementById(`reply-form-${parentCommentId}`);
+            const replyText = replyForm.querySelector('textarea').value.trim();
+            
+            if (!replyText) {
+                alert('Please enter a reply.');
+                return;
+            }
+            
+            fetch('/Comment/AddComment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `eventId=${eventId}&commentText=${encodeURIComponent(replyText)}&parentCommentId=${parentCommentId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    cancelReply(parentCommentId);
+                    loadComments();
+                } else {
+                    alert(data.message || 'Failed to post reply.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while posting the reply.');
+            });
+        }
+        
         function getTimeAgo(date) {
             const seconds = Math.floor((new Date() - date) / 1000);
             
@@ -421,6 +493,80 @@
             div.textContent = text;
             return div.innerHTML;
         }
+    </script>
+    
+    <!-- SignalR for real-time comments and ticket availability -->
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script>
+        // Use the existing eventId variable from the comment script above
+        
+        // Comment Hub Connection
+        const commentConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/commentHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        commentConnection.on("ReceiveComment", (comment) => {
+            console.log("New comment received via SignalR:", comment);
+            loadComments(); // Reload all comments to show the new one
+        });
+
+        commentConnection.on("UpdateComment", (data) => {
+            console.log("Comment updated via SignalR:", data);
+            // Find and update the specific comment
+            const commentTextEl = document.querySelector(`[data-comment-id="${data.commentId}"] .comment-text`);
+            if (commentTextEl) {
+                commentTextEl.textContent = data.commentText;
+            }
+        });
+
+        commentConnection.on("DeleteComment", (commentId) => {
+            console.log("Comment deleted via SignalR:", commentId);
+            loadComments(); // Reload to reflect deletion
+        });
+
+        // Start connection when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            commentConnection.start()
+                .then(() => {
+                    console.log("Connected to CommentHub successfully");
+                    return commentConnection.invoke("JoinEventGroup", eventId.toString());
+                })
+                .then(() => {
+                    console.log("Joined event group: event_" + eventId);
+                })
+                .catch(err => console.error("CommentHub connection error:", err));
+        });
+        
+        // Ticket Hub Connection for availability updates
+        const ticketConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/ticketHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        ticketConnection.on("TicketAvailabilityUpdate", (data) => {
+            console.log("Ticket availability updated via SignalR:", data);
+            if (data.eventId == eventId) {
+                // Update the available slots display
+                const availableSlotsEl = document.querySelector('.available-slots');
+                if (availableSlotsEl) {
+                    availableSlotsEl.textContent = `Available Slots: ${data.availableSlots} / ${data.maxAttendees}`;
+                }
+            }
+        });
+
+        // Start connection when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            ticketConnection.start()
+                .then(() => {
+                    console.log("Connected to TicketHub successfully");
+                    return ticketConnection.invoke("JoinEventGroup", eventId.toString());
+                })
+                .then(() => {
+                    console.log("Joined ticket group: event_" + eventId);
+                })
+                .catch(err => console.error("TicketHub connection error:", err));
+        });
     </script>
     
     <style>

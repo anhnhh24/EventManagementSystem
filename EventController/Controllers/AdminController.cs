@@ -13,14 +13,16 @@ namespace EventController.Controllers
         EventCategoryDAO _eventCategoryDAO;
         EmailVerificationTokenDAO _emailDAO;
         VenueDAO _venueDAO;
+        TicketDAO _ticketDAO;
 
-        public AdminController( UserDAO userDAO, EmailVerificationTokenDAO emailDAO, EventDAO eventDAO, EventCategoryDAO eventCategory, VenueDAO venueDAO)
+        public AdminController( UserDAO userDAO, EmailVerificationTokenDAO emailDAO, EventDAO eventDAO, EventCategoryDAO eventCategory, VenueDAO venueDAO, TicketDAO ticketDAO)
         {
             _userDAO = userDAO;
             _emailDAO = emailDAO;
             _eventCategoryDAO = eventCategory;
             _eventDAO = eventDAO;
             _venueDAO = venueDAO;
+            _ticketDAO = ticketDAO;
         }
         
         public IActionResult Index()
@@ -66,7 +68,7 @@ namespace EventController.Controllers
             return View();
         }
 
-        public IActionResult EventAdmin(string status, int? category)
+        public IActionResult EventAdmin(string status, int? category, string searchTitle)
         {
             var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
             if (currentUser == null)
@@ -92,8 +94,14 @@ namespace EventController.Controllers
                 events = events.Where(e => e.Status == status).ToList();
             }
 
+            if (!string.IsNullOrEmpty(searchTitle))
+            {
+                events = events.Where(e => e.Title.ToLower().Contains(searchTitle.ToLower())).ToList();
+            }
+
             ViewBag.listCategory = _eventCategoryDAO.GetAllCategories();
             ViewBag.EventList = events;
+            ViewBag.SearchTitle = searchTitle;
             return View();
         }
 
@@ -208,7 +216,11 @@ namespace EventController.Controllers
 
                 evt.Status = "Cancelled";
                 _eventDAO.UpdateEvent(evt);
-                TempData["Notification"] = $"Event '{evt.Title}' has been cancelled.";
+
+                // Cancel all unused tickets for this event
+                _ticketDAO.CancelAllEventTickets(id);
+
+                TempData["Notification"] = $"Event '{evt.Title}' has been cancelled and all unused tickets have been cancelled.";
             }
             else
             {

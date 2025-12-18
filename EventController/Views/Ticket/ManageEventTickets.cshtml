@@ -1,0 +1,289 @@
+@using EventController.Models.ViewModels
+@using EventController.Util
+@addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var currentUser = Context.Session.GetObject<UserViewModel>("currentUser");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manage Event Tickets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        .ticket-row {
+            transition: background-color 0.2s;
+        }
+        .ticket-row:hover {
+            background-color: #f8f9fa;
+        }
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status-unused {
+            background: #10b981;
+            color: white;
+        }
+        .status-used {
+            background: #6b7280;
+            color: white;
+        }
+        .status-cancelled {
+            background: #ef4444;
+            color: white;
+        }
+        .event-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+        }
+        .stats-card {
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Event Header -->
+        <div class="event-header mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-2">@ViewBag.Event.Title</h2>
+                    <p class="mb-1"><i class="bi bi-calendar-event"></i> @ViewBag.Event.StartTime.ToString("MMM dd, yyyy HH:mm") - @ViewBag.Event.EndTime.ToString("MMM dd, yyyy HH:mm")</p>
+                    <p class="mb-0"><i class="bi bi-geo-alt-fill"></i> @ViewBag.Event.Venue.Name</p>
+                </div>
+                <div>
+                    <span class="badge bg-light text-dark fs-6">Status: @ViewBag.Event.Status</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card stats-card border-success shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Unused Tickets</h6>
+                                <h2 class="fw-bold mb-0 text-success">@ViewBag.UnusedCount</h2>
+                            </div>
+                            <i class="bi bi-ticket-perforated fs-1 text-success opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stats-card border-secondary shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Used Tickets</h6>
+                                <h2 class="fw-bold mb-0 text-secondary">@ViewBag.UsedCount</h2>
+                            </div>
+                            <i class="bi bi-check-circle fs-1 text-secondary opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stats-card border-danger shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Cancelled Tickets</h6>
+                                <h2 class="fw-bold mb-0 text-danger">@ViewBag.CancelledCount</h2>
+                            </div>
+                            <i class="bi bi-x-circle fs-1 text-danger opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tickets Table -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-list-ul"></i> All Tickets</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ticket Code</th>
+                                <th>Participant</th>
+                                <th>Email</th>
+                                <th>Purchase Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.Tickets != null && ViewBag.Tickets.Count > 0)
+                            {
+                                foreach (var ticket in ViewBag.Tickets)
+                                {
+                                    <tr class="ticket-row" data-ticket-id="@ticket.TicketID">
+                                        <td>
+                                            <strong class="text-primary">@ticket.UniqueCode</strong>
+                                        </td>
+                                        <td>@ticket.User.FullName</td>
+                                        <td>@ticket.User.Email</td>
+                                        <td>@ticket.PurchaseDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                        <td>
+                                            <span class="status-badge status-@ticket.Status.ToLower()">@ticket.Status</span>
+                                        </td>
+                                        <td>
+                                            @if (ticket.Status == "Unused" && ViewBag.Event.Status == "Active")
+                                            {
+                                                <button class="btn btn-sm btn-success mark-used-btn" 
+                                                        data-ticket-id="@ticket.TicketID"
+                                                        data-event-id="@ViewBag.Event.EventID">
+                                                    <i class="bi bi-check-circle"></i> Mark as Used
+                                                </button>
+                                            }
+                                            else if (ticket.Status == "Used")
+                                            {
+                                                <span class="text-muted small"><i class="bi bi-check-circle-fill"></i> Already Used</span>
+                                            }
+                                            else if (ViewBag.Event.Status != "Active")
+                                            {
+                                                <span class="text-muted small">Event not active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">-</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">
+                                        <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+                                        <p class="mt-2">No tickets sold yet for this event.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-4">
+            <a asp-controller="Event" asp-action="EventOrganizer" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to My Events
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const markUsedButtons = document.querySelectorAll('.mark-used-btn');
+            
+            markUsedButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const ticketId = this.getAttribute('data-ticket-id');
+                    const eventId = this.getAttribute('data-event-id');
+                    
+                    if (!confirm('Are you sure you want to mark this ticket as used?')) {
+                        return;
+                    }
+                    
+                    // Disable button during request
+                    this.disabled = true;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+                    
+                    fetch('@Url.Action("MarkAsUsed", "Ticket")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `ticketId=${ticketId}&eventId=${eventId}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update UI
+                            const row = this.closest('tr');
+                            const statusCell = row.querySelector('td:nth-child(5)');
+                            statusCell.innerHTML = '<span class="status-badge status-used">Used</span>';
+                            
+                            const actionCell = row.querySelector('td:nth-child(6)');
+                            actionCell.innerHTML = '<span class="text-muted small"><i class="bi bi-check-circle-fill"></i> Already Used</span>';
+                            
+                            // Show success message
+                            alert(data.message);
+                            
+                            // Reload page to update statistics
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                            this.disabled = false;
+                            this.innerHTML = '<i class="bi bi-check-circle"></i> Mark as Used';
+                        }
+                    })
+                    .catch(error => {
+                        alert('An error occurred. Please try again.');
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-check-circle"></i> Mark as Used';
+                    });
+                });
+            });
+        });
+    </script>
+    
+    <!-- SignalR for real-time ticket status updates -->
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script>
+        const eventId = @ViewBag.Event.EventID;
+        
+        // Ticket Hub Connection for organizer updates
+        const ticketConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/ticketHub")
+            .build();
+
+        ticketConnection.on("TicketStatusUpdate", (data) => {
+            console.log("Ticket status updated:", data);
+            
+            // Update the specific ticket row
+            const row = document.querySelector(`tr[data-ticket-id="${data.ticketId}"]`);
+            if (row) {
+                const statusCell = row.querySelector('td:nth-child(5)');
+                const actionCell = row.querySelector('td:nth-child(6)');
+                
+                if (data.status === "Used") {
+                    statusCell.innerHTML = '<span class="status-badge status-used">Used</span>';
+                    actionCell.innerHTML = '<span class="text-muted small"><i class="bi bi-check-circle-fill"></i> Already Used</span>';
+                    
+                    // Optionally update statistics without full reload
+                    setTimeout(() => location.reload(), 1000);
+                }
+            }
+        });
+
+        ticketConnection.start()
+            .then(() => {
+                console.log("Connected to TicketHub");
+                return ticketConnection.invoke("JoinOrganizerGroup", eventId.toString());
+            })
+            .catch(err => console.error("TicketHub connection error:", err));
+    </script>
+</body>
+</html>

@@ -49,4 +49,5 @@ public class Event
     public virtual ICollection<Registration> Registrations { get; set; }
     public virtual ICollection<Notification> Notifications { get; set; }
     public virtual ICollection<Comment> Comments { get; set; }
+    public virtual ICollection<Ticket> Tickets { get; set; }
 }

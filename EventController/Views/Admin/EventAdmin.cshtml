@@ -26,6 +26,20 @@
     </div>
     <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
         <form method="get" class="d-flex align-items-center gap-2">
+            <label for="searchTitle" class="form-label mb-0">Search:</label>
+            <input type="text" id="searchTitle" name="searchTitle" class="form-control form-control-sm" 
+                   placeholder="Event title..." value="@ViewBag.SearchTitle" style="width: 200px;" />
+            <button type="submit" class="btn btn-sm btn-primary">
+                <i class="bi bi-search"></i>
+            </button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTitle))
+            {
+                <a href="@Url.Action("EventAdmin", "Admin")" class="btn btn-sm btn-secondary">
+                    <i class="bi bi-x-circle"></i> Clear
+                </a>
+            }
+        </form>
+        <form method="get" class="d-flex align-items-center gap-2">
             <label for="sortSelect" class="form-label mb-0">Status:</label>
             <select id="sortSelect" name="status" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
                 <option disabled selected>All</option>

@@ -1,11 +1,15 @@
 using EventController.Models.DAO.Implements;
 using EventController.Models.Data.DBcontext;
+using EventController.Hubs;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add SignalR
+builder.Services.AddSignalR();
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -31,6 +35,7 @@ builder.Services.AddScoped<EmailVerificationTokenDAO>();
 builder.Services.AddScoped<PaymentDAO>();
 builder.Services.AddScoped<BillDAO>();
 builder.Services.AddScoped<CommentDAO>();
+builder.Services.AddScoped<TicketDAO>();
 
 var app = builder.Build();
 
@@ -53,6 +58,11 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Map SignalR Hubs
+app.MapHub<NotificationHub>("/notificationHub");
+app.MapHub<CommentHub>("/commentHub");
+app.MapHub<TicketHub>("/ticketHub");
 
 app.Run();
 

@@ -1,7 +1,9 @@
 ﻿using EventController.Models.DAO.Implements;
 using EventController.Models.ViewModels;
 using EventController.Util;
+using EventController.Hubs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -17,9 +19,11 @@ namespace EventController.Controllers
         private readonly UserDAO _userDAO;
         private readonly BillDAO _billDAO;
         private readonly EventDAO _eventDAO;
+        private readonly TicketDAO _ticketDAO;
+        private readonly IHubContext<TicketHub> _ticketHub;
 
 
-        public PaymentController(ILogger<PaymentController> logger, IConfiguration configuration, RegistrationDAO registration, PaymentDAO paymentDAO, UserDAO userDAO, BillDAO billDAO, EventDAO eventDAO)
+        public PaymentController(ILogger<PaymentController> logger, IConfiguration configuration, RegistrationDAO registration, PaymentDAO paymentDAO, UserDAO userDAO, BillDAO billDAO, EventDAO eventDAO, TicketDAO ticketDAO, IHubContext<TicketHub> ticketHub)
         {
             _logger = logger;
             _configuration = configuration;
@@ -28,6 +32,8 @@ namespace EventController.Controllers
             _userDAO = userDAO;
             _billDAO = billDAO;
             _eventDAO = eventDAO;
+            _ticketDAO = ticketDAO;
+            _ticketHub = ticketHub;
 
         }
         public IActionResult Index()
@@ -45,7 +51,6 @@ namespace EventController.Controllers
             var user = _userDAO.GetUserByEmail(currentUser.Email);
             var listRegistration = _registrationDAO
                 .getPendingUserRegistration(user.UserID)
-                .Select(r => r.RegistrationID)
                 .ToList();
 
             if (listRegistration == null || !listRegistration.Any())
@@ -54,12 +59,45 @@ namespace EventController.Controllers
                 return RedirectToAction("Index", "Registration");
             }
 
+            // Validate available slots for each event
+            foreach (var registration in listRegistration)
+            {
+                var evt = _eventDAO.GetEventById(registration.EventID);
+                if (evt != null && evt.MaxAttendees != null)
+                {
+                    // Calculate tickets already sold (excluding cancelled)
+                    var ticketsSold = _ticketDAO.GetTicketsByEvent(registration.EventID)
+                        .Count(t => t.Status != "Cancelled");
+                    
+                    var availableSlots = evt.MaxAttendees.Value - ticketsSold;
+                    
+                    if (registration.Quantity > availableSlots)
+                    {
+                        if (availableSlots <= 0)
+                        {
+                            TempData["ErrorMessage"] = $"Sorry! Event '{evt.Title}' is out of tickets.";
+                        }
+                        else
+                        {
+                            TempData["ErrorMessage"] = $"Sorry! Only {availableSlots} ticket{(availableSlots > 1 ? "s" : "")} available for event '{evt.Title}'.";
+                        }
+                        return RedirectToAction("Index", "Registration");
+                    }
+                }
+            }
+
+            var registrationIds = listRegistration.Select(r => r.RegistrationID).ToList();
+
             if (Total == 0)
             {
-                foreach (var regId in listRegistration)
+                foreach (var regId in registrationIds)
+                {
                     _registrationDAO.UpdateStatusById(regId, "Success");
+                    // Create tickets for free registration
+                    _ticketDAO.CreateTicketsForRegistration(regId);
+                }
 
-                var bill = await _billDAO.CreateBillAsync(user.UserID, listRegistration, 0);
+                var bill = await _billDAO.CreateBillAsync(user.UserID, registrationIds, 0);
                 var payment = new Payment
                 {
                     Amount = 0,
@@ -75,7 +113,7 @@ namespace EventController.Controllers
                 return RedirectToAction("History", "Registration");
             }
 
-            var createdBill = await _billDAO.CreateBillAsync(user.UserID, listRegistration, Total);
+            var createdBill = await _billDAO.CreateBillAsync(user.UserID, registrationIds, Total);
             int BillId = createdBill.BillID;
 
             string txnCode = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 12);
@@ -130,7 +168,7 @@ namespace EventController.Controllers
         }
 
         [HttpGet]
-        public IActionResult ReturnPayment(string billId)
+        public async Task<IActionResult> ReturnPayment(string billId)
         {
             try
             {
@@ -183,6 +221,25 @@ namespace EventController.Controllers
                     {
                         _registrationDAO.UpdateStatusById(reg.RegistrationID, "Success");
                         _eventDAO.IncreaseEventAttendees(reg.EventID, reg.Quantity);
+                        // Create tickets after successful payment
+                        _ticketDAO.CreateTicketsForRegistration(reg.RegistrationID);
+                        
+                        // Broadcast ticket availability update for this event
+                        var evt = _eventDAO.GetEventById(reg.EventID);
+                        if (evt != null && evt.MaxAttendees != null)
+                        {
+                            var ticketsSold = _ticketDAO.GetTicketsByEvent(reg.EventID)
+                                .Count(t => t.Status != "Cancelled");
+                            var availableSlots = evt.MaxAttendees.Value - ticketsSold;
+                            
+                            await _ticketHub.Clients.Group($"event_{reg.EventID}").SendAsync("TicketAvailabilityUpdate", new
+                            {
+                                eventId = reg.EventID,
+                                availableSlots = availableSlots,
+                                ticketsSold = ticketsSold,
+                                maxAttendees = evt.MaxAttendees.Value
+                            });
+                        }
                     }
 
                     var bill = _billDAO.GetBillByBillId(validBillId);

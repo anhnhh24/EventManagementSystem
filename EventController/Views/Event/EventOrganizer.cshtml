@@ -161,6 +161,9 @@
                                         <a href="@Url.Action("Index", "Event", new { id = item.EventID })" class="btn btn-sm btn-outline-primary" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
+                                        <a asp-action="ManageEventTickets" asp-controller="Ticket" asp-route-eventId="@item.EventID" class="btn btn-sm btn-outline-info" title="Manage Tickets">
+                                            <i class="bi bi-ticket-perforated"></i>
+                                        </a>
                                         <a asp-action="EditEvent" asp-controller="Event" asp-route-Id="@item.EventID" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
