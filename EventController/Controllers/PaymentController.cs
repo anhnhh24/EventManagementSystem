@@ -59,11 +59,40 @@ namespace EventController.Controllers
                 return RedirectToAction("Index", "Registration");
             }
 
-            // Validate available slots for each event
+            // Validate event status and available slots for each event
             foreach (var registration in listRegistration)
             {
                 var evt = _eventDAO.GetEventById(registration.EventID);
-                if (evt != null && evt.MaxAttendees != null)
+                
+                // Check if event exists
+                if (evt == null)
+                {
+                    TempData["ErrorMessage"] = "One or more events no longer exist. Please check your cart.";
+                    return RedirectToAction("Index", "Registration");
+                }
+                
+                // Check event status - prevent payment for cancelled, expired, or deleted events
+                if (evt.Status == "Cancelled")
+                {
+                    TempData["ErrorMessage"] = $"Sorry! Event '{evt.Title}' has been cancelled and is no longer available for registration.";
+                    return RedirectToAction("Index", "Registration");
+                }
+                
+                if (evt.Status == "Expired")
+                {
+                    TempData["ErrorMessage"] = $"Sorry! Event '{evt.Title}' has expired and is no longer available for registration.";
+                    return RedirectToAction("Index", "Registration");
+                }
+                
+                // Only allow payment for Active or Upcoming events
+                if (evt.Status != "Active" && evt.Status != "Upcoming")
+                {
+                    TempData["ErrorMessage"] = $"Sorry! Event '{evt.Title}' is not available for registration (Status: {evt.Status}).";
+                    return RedirectToAction("Index", "Registration");
+                }
+                
+                // Validate available slots
+                if (evt.MaxAttendees != null)
                 {
                     // Calculate tickets already sold (excluding cancelled)
                     var ticketsSold = _ticketDAO.GetTicketsByEvent(registration.EventID)
@@ -223,22 +252,32 @@ namespace EventController.Controllers
                         _eventDAO.IncreaseEventAttendees(reg.EventID, reg.Quantity);
                         // Create tickets after successful payment
                         _ticketDAO.CreateTicketsForRegistration(reg.RegistrationID);
-                        
-                        // Broadcast ticket availability update for this event
-                        var evt = _eventDAO.GetEventById(reg.EventID);
-                        if (evt != null && evt.MaxAttendees != null)
+                    }
+                    
+                    // Broadcast ticket availability updates after all tickets are created
+                    foreach (var reg in regs)
+                    {
+                        try
                         {
-                            var ticketsSold = _ticketDAO.GetTicketsByEvent(reg.EventID)
-                                .Count(t => t.Status != "Cancelled");
-                            var availableSlots = evt.MaxAttendees.Value - ticketsSold;
-                            
-                            await _ticketHub.Clients.Group($"event_{reg.EventID}").SendAsync("TicketAvailabilityUpdate", new
+                            var evt = _eventDAO.GetEventById(reg.EventID);
+                            if (evt != null && evt.MaxAttendees != null)
                             {
-                                eventId = reg.EventID,
-                                availableSlots = availableSlots,
-                                ticketsSold = ticketsSold,
-                                maxAttendees = evt.MaxAttendees.Value
-                            });
+                                var ticketsSold = _ticketDAO.GetTicketsByEvent(reg.EventID)
+                                    .Count(t => t.Status != "Cancelled");
+                                var availableSlots = evt.MaxAttendees.Value - ticketsSold;
+                                
+                                await _ticketHub.Clients.Group($"event_{reg.EventID}").SendAsync("TicketAvailabilityUpdate", new
+                                {
+                                    eventId = reg.EventID,
+                                    availableSlots = availableSlots,
+                                    ticketsSold = ticketsSold,
+                                    maxAttendees = evt.MaxAttendees.Value
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Failed to broadcast ticket availability update for event {reg.EventID}: {ex.Message}");
                         }
                     }
 

@@ -114,7 +114,18 @@
         <!-- Tickets Table -->
         <div class="card shadow-sm">
             <div class="card-header bg-white py-3">
-                <h5 class="mb-0"><i class="bi bi-list-ul"></i> All Tickets</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-list-ul"></i> All Tickets</h5>
+                    <div class="input-group" style="max-width: 300px;">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               id="ticketSearch" 
+                               class="form-control" 
+                               placeholder="Search by ticket code...">
+                    </div>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -195,6 +206,47 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchInput = document.getElementById('ticketSearch');
+            const tableRows = document.querySelectorAll('tbody tr[data-ticket-id]');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    let visibleCount = 0;
+                    
+                    tableRows.forEach(row => {
+                        const ticketCode = row.querySelector('td:first-child strong').textContent.toLowerCase();
+                        
+                        if (ticketCode.includes(searchTerm)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                    
+                    // Show/hide "no results" message
+                    const noResultsRow = document.getElementById('noResultsRow');
+                    if (noResultsRow) {
+                        noResultsRow.remove();
+                    }
+                    
+                    if (visibleCount === 0 && tableRows.length > 0) {
+                        const tbody = document.querySelector('tbody');
+                        const newRow = document.createElement('tr');
+                        newRow.id = 'noResultsRow';
+                        newRow.innerHTML = `
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="bi bi-search" style="font-size: 2rem; opacity: 0.3;"></i>
+                                <p class="mt-2">No tickets found matching "${searchTerm}"</p>
+                            </td>
+                        `;
+                        tbody.appendChild(newRow);
+                    }
+                });
+            }
+            
             const markUsedButtons = document.querySelectorAll('.mark-used-btn');
             
             markUsedButtons.forEach(button => {
@@ -257,10 +309,11 @@
         // Ticket Hub Connection for organizer updates
         const ticketConnection = new signalR.HubConnectionBuilder()
             .withUrl("/ticketHub")
+            .configureLogging(signalR.LogLevel.Information)
             .build();
 
         ticketConnection.on("TicketStatusUpdate", (data) => {
-            console.log("Ticket status updated:", data);
+            console.log("Ticket status updated via SignalR:", data);
             
             // Update the specific ticket row
             const row = document.querySelector(`tr[data-ticket-id="${data.ticketId}"]`);
@@ -272,18 +325,51 @@
                     statusCell.innerHTML = '<span class="status-badge status-used">Used</span>';
                     actionCell.innerHTML = '<span class="text-muted small"><i class="bi bi-check-circle-fill"></i> Already Used</span>';
                     
-                    // Optionally update statistics without full reload
-                    setTimeout(() => location.reload(), 1000);
+                    // Update statistics cards in real-time
+                    updateStatistics();
                 }
             }
         });
 
-        ticketConnection.start()
-            .then(() => {
-                console.log("Connected to TicketHub");
-                return ticketConnection.invoke("JoinOrganizerGroup", eventId.toString());
-            })
-            .catch(err => console.error("TicketHub connection error:", err));
+        function updateStatistics() {
+            // Count current ticket statuses from the table
+            const rows = document.querySelectorAll('tbody tr[data-ticket-id]');
+            let unusedCount = 0;
+            let usedCount = 0;
+            let cancelledCount = 0;
+            
+            rows.forEach(row => {
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    const statusText = statusBadge.textContent.trim();
+                    if (statusText === 'Unused') unusedCount++;
+                    else if (statusText === 'Used') usedCount++;
+                    else if (statusText === 'Cancelled') cancelledCount++;
+                }
+            });
+            
+            // Update the statistics cards
+            const unusedElement = document.querySelector('.card.border-success .fw-bold');
+            const usedElement = document.querySelector('.card.border-secondary .fw-bold');
+            const cancelledElement = document.querySelector('.card.border-danger .fw-bold');
+            
+            if (unusedElement) unusedElement.textContent = unusedCount;
+            if (usedElement) usedElement.textContent = usedCount;
+            if (cancelledElement) cancelledElement.textContent = cancelledCount;
+        }
+
+        // Start connection when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            ticketConnection.start()
+                .then(() => {
+                    console.log("Connected to TicketHub successfully");
+                    return ticketConnection.invoke("JoinOrganizerGroup", eventId.toString());
+                })
+                .then(() => {
+                    console.log("Joined organizer group: organizer_" + eventId);
+                })
+                .catch(err => console.error("TicketHub connection error:", err));
+        });
     </script>
 </body>
 </html>

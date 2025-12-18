@@ -276,22 +276,27 @@
         @if (!string.IsNullOrEmpty(user.Email))
         {
             <text>
-            const notificationConnection = new signalR.HubConnectionBuilder()
-                .withUrl("/notificationHub")
-                .build();
+            // Initialize NotificationHub connection after DOM is ready
+            document.addEventListener('DOMContentLoaded', function() {
+                const notificationConnection = new signalR.HubConnectionBuilder()
+                    .withUrl("/notificationHub")
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
 
-            notificationConnection.on("ReceiveEventStatusUpdate", (data) => {
-                console.log("Event status update:", data);
-                // Optionally show a toast notification or update UI
+                notificationConnection.on("ReceiveEventStatusUpdate", (data) => {
+                    console.log("Event status update via SignalR:", data);
+                    // Optionally show a toast notification or update UI
+                    // You can add notification toast here if needed
+                });
+
+                notificationConnection.start()
+                    .then(() => {
+                        console.log("Connected to NotificationHub successfully");
+                        // Join user-specific group if needed (use Email as identifier)
+                        // notificationConnection.invoke("JoinUserGroup", "@user.Email");
+                    })
+                    .catch(err => console.error("NotificationHub connection error:", err));
             });
-
-            notificationConnection.start()
-                .then(() => {
-                    console.log("Connected to NotificationHub");
-                    // Join user-specific group if needed (use Email as identifier)
-                    // notificationConnection.invoke("JoinUserGroup", "@user.Email");
-                })
-                .catch(err => console.error("NotificationHub connection error:", err));
             </text>
         }
     </script>
