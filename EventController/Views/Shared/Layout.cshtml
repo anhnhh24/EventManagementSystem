@@ -172,9 +172,88 @@
     }
 
     <!-- ✅ Footer -->
-    <footer class="bg-light text-center py-3 mt-5 border-top">
+    <footer class="bg-dark text-white py-4 mt-5">
         <div class="container">
-            <span class="text-muted">© 2025 Event Management. All rights reserved.</span>
+            <div class="row">
+                <!-- About Section -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="fw-bold mb-3">Event Management System</h5>
+                    <p class="small text-white-50">
+                        Your trusted platform for discovering, organizing, and managing events. 
+                        Create memorable experiences with ease.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a asp-controller="Home" asp-action="Index" class="text-white-50 text-decoration-none">
+                                <i class="bi bi-house-door me-1"></i> Home
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a asp-controller="Event" asp-action="EventList" class="text-white-50 text-decoration-none">
+                                <i class="bi bi-calendar-event me-1"></i> Browse Events
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-white-50 text-decoration-none">
+                                <i class="bi bi-info-circle me-1"></i> About Us
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Admin Contact -->
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold mb-3">Contact Admin</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-envelope-fill me-2 text-primary"></i>
+                            <a href="mailto:admin@eventmanagement.com" class="text-white-50 text-decoration-none">
+                                admin@eventmanagement.com
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-telephone-fill me-2 text-success"></i>
+                            <a href="tel:+1234567890" class="text-white-50 text-decoration-none">
+                                +1 (234) 567-890
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-geo-alt-fill me-2 text-danger"></i>
+                            <span class="text-white-50">123 Event Street, City, Country</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="border-secondary my-3" />
+
+            <!-- Social Media & Copyright -->
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <span class="text-white-50 small">
+                        © 2025 Event Management System. All rights reserved.
+                    </span>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-white-50 me-3" title="Facebook">
+                        <i class="bi bi-facebook fs-5"></i>
+                    </a>
+                    <a href="#" class="text-white-50 me-3" title="Twitter">
+                        <i class="bi bi-twitter fs-5"></i>
+                    </a>
+                    <a href="#" class="text-white-50 me-3" title="Instagram">
+                        <i class="bi bi-instagram fs-5"></i>
+                    </a>
+                    <a href="#" class="text-white-50" title="LinkedIn">
+                        <i class="bi bi-linkedin fs-5"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </footer>
 

@@ -42,26 +42,29 @@
 
         <!-- 🔍 Filter Form -->
         <form method="get" asp-action="EventList" class="row g-3 mb-4">
-            <div class="col-md-4">
-                <select class="form-select" name="location">
+            <div class="col-md-3">
+                <input type="text" name="searchName" class="form-control" placeholder="Search by event name..." value="@ViewBag.SearchName" />
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="venueId">
                     <option value="">All Locations</option>
                     @foreach (var loc in ViewBag.listVenue)
                     {
-                        <option value="@loc.VenueID">@loc.Name</option>
+                        <option value="@loc.VenueID" selected="@(loc.VenueID == ViewBag.SelectedVenue)">@loc.Name</option>
                     }
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
                 <input type="date" name="startDate"
                 class="form-control"
                 value="@ViewBag.SelectedDate" />
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <select class="form-select" name="categoryId">
                     <option value="">All Categories</option>
                     @foreach (var cat in ViewBag.listCategory)
                     {
-                        <option value="@cat.CategoryID">@cat.CategoryName</option>
+                        <option value="@cat.CategoryID" selected="@(cat.CategoryID == ViewBag.SelectedCat)">@cat.CategoryName</option>
                     }
                 </select>
             </div>

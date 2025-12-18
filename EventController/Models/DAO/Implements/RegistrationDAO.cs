@@ -19,6 +19,11 @@ namespace EventController.Models.DAO.Implements
             return _context.Registrations.Any(r => r.UserID == userId && r.EventID == eventId);
         }
 
+        public bool IsUserPaidParticipant(int userId, int eventId)
+        {
+            return _context.Registrations.Any(r => r.UserID == userId && r.EventID == eventId && r.Status == "Success");
+        }
+
         public bool RegisterUserToEvent(int userId, int eventId)
         { 
             var registration = new Registration

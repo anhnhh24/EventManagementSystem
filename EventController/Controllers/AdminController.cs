@@ -12,13 +12,15 @@ namespace EventController.Controllers
         EventDAO _eventDAO;
         EventCategoryDAO _eventCategoryDAO;
         EmailVerificationTokenDAO _emailDAO;
+        VenueDAO _venueDAO;
 
-        public AdminController( UserDAO userDAO, EmailVerificationTokenDAO emailDAO, EventDAO eventDAO, EventCategoryDAO eventCategory)
+        public AdminController( UserDAO userDAO, EmailVerificationTokenDAO emailDAO, EventDAO eventDAO, EventCategoryDAO eventCategory, VenueDAO venueDAO)
         {
             _userDAO = userDAO;
             _emailDAO = emailDAO;
             _eventCategoryDAO = eventCategory;
             _eventDAO = eventDAO;
+            _venueDAO = venueDAO;
         }
         
         public IActionResult Index()
@@ -214,6 +216,260 @@ namespace EventController.Controllers
             }
 
             return RedirectToAction("EventAdmin", "Admin");
+        }
+
+        public IActionResult VenueAdmin()
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to access admin panel.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var venues = _venueDAO.GetAllVenues();
+            return View(venues);
+        }
+
+        [HttpGet]
+        public IActionResult CreateVenue()
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to access admin panel.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult CreateVenue(Venue venue, IFormFile? imageFile)
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to access admin panel.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (string.IsNullOrWhiteSpace(venue.Name))
+            {
+                ModelState.AddModelError("Name", "Venue name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(venue.Address))
+            {
+                ModelState.AddModelError("Address", "Address is required.");
+            }
+
+            if (venue.Capacity.HasValue && venue.Capacity <= 0)
+            {
+                ModelState.AddModelError("Capacity", "Capacity must be greater than 0.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(venue);
+            }
+
+            try
+            {
+                // Handle image upload
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "venues");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        imageFile.CopyTo(fileStream);
+                    }
+
+                    venue.Image = "/img/venues/" + uniqueFileName;
+                }
+                else
+                {
+                    venue.Image = "/img/venues/default-venue.png";
+                }
+
+                _venueDAO.AddVenue(venue);
+                TempData["Notification"] = $"Venue '{venue.Name}' has been created successfully.";
+                return RedirectToAction("VenueAdmin");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while creating the venue: " + ex.Message);
+                return View(venue);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult EditVenue(int id)
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to access admin panel.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var venue = _venueDAO.GetVenueById(id);
+            if (venue == null)
+            {
+                TempData["Error"] = "Venue not found.";
+                return RedirectToAction("VenueAdmin");
+            }
+
+            return View(venue);
+        }
+
+        [HttpPost]
+        public IActionResult EditVenue(Venue venue, IFormFile? imageFile)
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to access admin panel.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (string.IsNullOrWhiteSpace(venue.Name))
+            {
+                ModelState.AddModelError("Name", "Venue name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(venue.Address))
+            {
+                ModelState.AddModelError("Address", "Address is required.");
+            }
+
+            if (venue.Capacity.HasValue && venue.Capacity <= 0)
+            {
+                ModelState.AddModelError("Capacity", "Capacity must be greater than 0.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(venue);
+            }
+
+            try
+            {
+                var existingVenue = _venueDAO.GetVenueById(venue.VenueID);
+                if (existingVenue == null)
+                {
+                    TempData["Error"] = "Venue not found.";
+                    return RedirectToAction("VenueAdmin");
+                }
+
+                // Handle image upload
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "venues");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        imageFile.CopyTo(fileStream);
+                    }
+
+                    venue.Image = "/img/venues/" + uniqueFileName;
+                }
+                else
+                {
+                    venue.Image = existingVenue.Image;
+                }
+
+                _venueDAO.UpdateVenue(venue);
+                TempData["Notification"] = $"Venue '{venue.Name}' has been updated successfully.";
+                return RedirectToAction("VenueAdmin");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while updating the venue: " + ex.Message);
+                return View(venue);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DeleteVenue(int id)
+        {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to access admin panel.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+            if (currentUser.RoleID != 1)
+            {
+                TempData["Error"] = "You don't have permission to perform this action.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            try
+            {
+                var venue = _venueDAO.GetVenueById(id);
+                if (venue == null)
+                {
+                    TempData["Error"] = "Venue not found.";
+                    return RedirectToAction("VenueAdmin");
+                }
+
+                // Check if venue has any events
+                if (venue.Events != null && venue.Events.Any())
+                {
+                    TempData["Error"] = $"Cannot delete venue '{venue.Name}' because it has {venue.Events.Count} event(s) associated with it.";
+                    return RedirectToAction("VenueAdmin");
+                }
+
+                _venueDAO.DeleteVenue(id);
+                TempData["Notification"] = $"Venue '{venue.Name}' has been deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An error occurred while deleting the venue: " + ex.Message;
+            }
+
+            return RedirectToAction("VenueAdmin");
         }
 
     }

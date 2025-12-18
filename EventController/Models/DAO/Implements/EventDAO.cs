@@ -150,7 +150,7 @@ namespace EventController.Models.DAO.Implements
             return _context.Events
                            .Include(e => e.Category)
                            .Include(e => e.Venue)
-                           .Where(e => e.StartTime >= DateTime.UtcNow);
+                           .Where(e => e.Status != "Expired" && e.Status != "Cancelled");
         }
 
         public bool IsVenueOccupied(int venueId, DateTime start, DateTime end, int currentEventId)
@@ -170,8 +170,9 @@ namespace EventController.Models.DAO.Implements
 
         public void UpdateEventStatuses()
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now; // Changed from UtcNow to Now for local time
 
+            // Update expired events
             var expiredEvents = _context.Events
                 .Where(e => e.EndTime < now && e.Status != "Expired")
                 .ToList();
@@ -181,8 +182,9 @@ namespace EventController.Models.DAO.Implements
                 evt.Status = "Expired";
             }
 
+            // Update active (ongoing) events - only if they're currently Upcoming
             var activeEvents = _context.Events
-                .Where(e => e.StartTime <= now && e.EndTime > now && e.Status != "Active")
+                .Where(e => e.StartTime <= now && e.EndTime > now && e.Status == "Upcoming")
                 .ToList();
 
             foreach (var evt in activeEvents)

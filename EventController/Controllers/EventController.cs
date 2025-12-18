@@ -13,13 +13,15 @@ namespace EventController.Controllers
         EventDAO _eventDAO;
         VenueDAO _venueDAO;
         UserDAO _userDAO;
-        public EventController(ILogger<EventController> logger, EventDAO eventDAO, EventCategoryDAO categoryDAO, VenueDAO venueDAO, UserDAO userDAO)
+        RegistrationDAO _registrationDAO;
+        public EventController(ILogger<EventController> logger, EventDAO eventDAO, EventCategoryDAO categoryDAO, VenueDAO venueDAO, UserDAO userDAO, RegistrationDAO registrationDAO)
         {
             _logger = logger;
             _eventDAO = eventDAO;
             _categoryDAO = categoryDAO;
             _venueDAO = venueDAO;
             _userDAO = userDAO;
+            _registrationDAO = registrationDAO;
         }
 
         public IActionResult Index(int id)
@@ -37,6 +39,7 @@ namespace EventController.Controllers
         int? categoryId,
         int? venueId,
         DateTime? startDate,
+        string searchName,
         int page = 1,
         int pageSize = 8)
         {
@@ -53,6 +56,9 @@ namespace EventController.Controllers
             }
 
             var query = _eventDAO.GetQueryableEvents();
+
+            if (!string.IsNullOrWhiteSpace(searchName))
+                query = query.Where(e => e.Title.ToLower().Contains(searchName.ToLower()));
 
             if (categoryId.HasValue && categoryId > 0)
                 query = query.Where(e => e.CategoryID == categoryId.Value);
@@ -84,6 +90,7 @@ namespace EventController.Controllers
             ViewBag.SelectedCat = categoryId;
             ViewBag.SelectedVenue = venueId;
             ViewBag.SelectedDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.SearchName = searchName;
 
             return View();
         }
@@ -318,18 +325,52 @@ namespace EventController.Controllers
 
         public IActionResult Delete(int id)
         {
+            var currentUser = HttpContext.Session.GetObject<UserViewModel>("currentUser");
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Please login to delete events.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+
             var evt = _eventDAO.GetEventById(id);
-            if (evt != null && evt.Status == "Inactive")
+            if (evt == null)
             {
-                _eventDAO.DeleteEvent(id);
-                TempData["Notification"] = "Delete event successfully";
+                TempData["Error"] = "Event not found.";
                 return RedirectToAction("EventOrganizer", "Event");
             }
-            else
+
+            // Get current user ID
+            var user = _userDAO.GetUserByEmail(currentUser.Email);
+            if (user == null)
             {
-                TempData["Error"] = "You can not delete active event";
+                TempData["Error"] = "User not found.";
+                return RedirectToAction("SignIn", "Authentication");
+            }
+
+            // Check ownership - only allow organizer to delete their own events
+            if (evt.OrganizerID != user.UserID)
+            {
+                TempData["Error"] = "You can only delete your own events.";
                 return RedirectToAction("EventOrganizer", "Event");
             }
+
+            // Only allow deletion of Inactive events (not yet approved by admin)
+            if (evt.Status != "Inactive")
+            {
+                TempData["Error"] = "You can only delete inactive events. Active, upcoming, or ongoing events cannot be deleted.";
+                return RedirectToAction("EventOrganizer", "Event");
+            }
+
+            // Check if event has any registrations
+            if (evt.Registrations != null && evt.Registrations.Any())
+            {
+                TempData["Error"] = $"Cannot delete event '{evt.Title}' because it has {evt.Registrations.Count} registration(s). Please cancel the event instead.";
+                return RedirectToAction("EventOrganizer", "Event");
+            }
+
+            _eventDAO.DeleteEvent(id);
+            TempData["Notification"] = "Event deleted successfully.";
+            return RedirectToAction("EventOrganizer", "Event");
         }
     }
 

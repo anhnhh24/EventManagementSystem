@@ -1,0 +1,180 @@
+@model List<Venue>
+@{
+    ViewData["Title"] = "Venue Management";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Venue Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold"><i class="bi bi-building"></i> Venue Management</h2>
+            <a asp-action="CreateVenue" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Venue
+            </a>
+        </div>
+
+        @if (TempData["Notification"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                @TempData["Notification"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Image</th>
+                                <th>Venue Name</th>
+                                <th>Address</th>
+                                <th>Capacity</th>
+                                <th>Events Count</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var venue in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <img src="@(venue.Image ?? "/img/venues/default-venue.png")" 
+                                                 alt="@venue.Name" 
+                                                 class="rounded" 
+                                                 style="width: 60px; height: 60px; object-fit: cover;" />
+                                        </td>
+                                        <td>
+                                            <strong>@venue.Name</strong>
+                                            @if (!string.IsNullOrWhiteSpace(venue.Description))
+                                            {
+                                                <br />
+                                                <small class="text-muted">@(venue.Description.Length > 50 ? venue.Description.Substring(0, 50) + "..." : venue.Description)</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-geo-alt-fill text-danger"></i>
+                                            @venue.Address
+                                        </td>
+                                        <td>
+                                            @if (venue.Capacity.HasValue)
+                                            {
+                                                <span class="badge bg-info">
+                                                    <i class="bi bi-people-fill"></i> @venue.Capacity.Value
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">N/A</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (venue.Events != null && venue.Events.Any())
+                                            {
+                                                <span class="badge bg-success">@venue.Events.Count event(s)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">No events</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a asp-action="EditVenue" asp-route-id="@venue.VenueID" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                </a>
+                                                @if (venue.Events == null || !venue.Events.Any())
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deleteModal@(venue.VenueID)">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                            disabled 
+                                                            title="Cannot delete venue with events">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                }
+                                            </div>
+
+                                            <!-- Delete Confirmation Modal -->
+                                            <div class="modal fade" id="deleteModal@(venue.VenueID)" tabindex="-1">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-danger text-white">
+                                                            <h5 class="modal-title">
+                                                                <i class="bi bi-exclamation-triangle-fill"></i> Confirm Delete
+                                                            </h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Are you sure you want to delete venue <strong>@venue.Name</strong>?</p>
+                                                            <p class="text-muted small mb-0">This action cannot be undone.</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form asp-action="DeleteVenue" method="post" style="display: inline;">
+                                                                <input type="hidden" name="id" value="@venue.VenueID" />
+                                                                <button type="submit" class="btn btn-danger">
+                                                                    <i class="bi bi-trash"></i> Delete
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                        No venues found. Create your first venue to get started.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

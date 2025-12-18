@@ -11,12 +11,14 @@ namespace EventController.Controllers
         private readonly CommentDAO _commentDAO;
         private readonly EventDAO _eventDAO;
         private readonly UserDAO _userDAO;
+        private readonly RegistrationDAO _registrationDAO;
 
-        public CommentController(CommentDAO commentDAO, EventDAO eventDAO, UserDAO userDAO)
+        public CommentController(CommentDAO commentDAO, EventDAO eventDAO, UserDAO userDAO, RegistrationDAO registrationDAO)
         {
             _commentDAO = commentDAO;
             _eventDAO = eventDAO;
             _userDAO = userDAO;
+            _registrationDAO = registrationDAO;
         }
 
         [HttpGet]
@@ -74,6 +76,12 @@ namespace EventController.Controllers
                 if (evt == null)
                 {
                     return Json(new { success = false, message = "Event not found." });
+                }
+
+                // Check if user is registered and has paid for the event
+                if (!IsUserParticipant(user.UserID, eventId))
+                {
+                    return Json(new { success = false, message = "Only registered participants who have paid can comment on this event." });
                 }
 
                 var comment = new Comment
@@ -200,6 +208,12 @@ namespace EventController.Controllers
             {
                 return Json(new { success = false, message = "Error deleting comment: " + ex.Message });
             }
+        }
+
+        private bool IsUserParticipant(int userId, int eventId)
+        {
+            // Check if user is registered for the event with "Success" status (paid)
+            return _registrationDAO.IsUserPaidParticipant(userId, eventId);
         }
 
         private CommentViewModel MapToViewModel(Comment comment, int? currentUserId)
