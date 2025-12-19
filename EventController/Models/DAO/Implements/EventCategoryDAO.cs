@@ -1,5 +1,6 @@
 ﻿
 using EventController.Models.Data.DBcontext;
+using Microsoft.EntityFrameworkCore;
 
 
 public class EventCategoryDAO
@@ -13,12 +14,16 @@ public class EventCategoryDAO
 
     public List<EventCategory> GetAllCategories()
     {
-        return _context.EventCategories.ToList();
+        return _context.EventCategories
+                       .Include(c => c.Events)
+                       .ToList();
     }
 
     public EventCategory GetCategoryById(int id)
     {
-        return _context.EventCategories.Find(id);
+        return _context.EventCategories
+                       .Include(c => c.Events)
+                       .FirstOrDefault(c => c.CategoryID == id);
     }
 
     public void AddCategory(EventCategory category)

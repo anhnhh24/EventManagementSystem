@@ -31,7 +31,8 @@ namespace EventController.Models.DAO.Implements
             return _context.Events
                            .Include(e => e.Category)
                            .Include(e => e.Organizer)
-                           .Where(e => e.StartTime >= startOfMonth && e.StartTime < startOfNextMonth)
+                           .Where(e => e.StartTime >= startOfMonth && e.StartTime < startOfNextMonth 
+                                    && (e.Status == "Active" || e.Status == "Upcoming"))
                            .OrderBy(e => e.StartTime)
                            .ToList();
         }
@@ -110,7 +111,7 @@ namespace EventController.Models.DAO.Implements
             var nextWeek = today.AddDays(7);
 
             return _context.Events
-                           .Where(e => e.StartTime >= today && e.StartTime <= nextWeek)
+                           .Where(e => e.StartTime >= today && e.StartTime <= nextWeek && e.Status != "Inactive")
                            .OrderBy(e => e.StartTime)
                            .ToList();
         }
@@ -120,7 +121,7 @@ namespace EventController.Models.DAO.Implements
         {
             DateTime start = from ?? DateTime.UtcNow;
             return _context.Events
-                           .Where(e => e.StartTime >= start && e.Status == "Upcoming")
+                           .Where(e => e.StartTime >= start && (e.Status == "Upcoming" || e.Status == "Active"))
                            .OrderBy(e => e.StartTime)
                            .ToList();
         }
@@ -139,18 +140,47 @@ namespace EventController.Models.DAO.Implements
             return _context.Events
                            .Include(e => e.Registrations)
                            .Where(e => (e.MaxAttendees == null || e.Registrations.Count() < e.MaxAttendees)
-                                       && e.StartTime >= DateTime.UtcNow)
+                                       && e.StartTime >= DateTime.UtcNow
+                                       && e.Status != "Inactive")
                            .ToList();
         }
 
 
+
+        // Check if venue has conflicting events in the given time range
+        public bool HasVenueConflict(int? venueId, DateTime startTime, DateTime endTime, int? excludeEventId = null)
+        {
+            if (!venueId.HasValue)
+                return false;
+
+            var conflictingEvents = _context.Events
+                .Where(e => e.VenueID == venueId.Value
+                    && (e.Status == "Active" || e.Status == "Upcoming")
+                    && e.EventID != (excludeEventId ?? 0)
+                    && ((e.StartTime < endTime && e.EndTime > startTime)))
+                .ToList();
+
+            return conflictingEvents.Any();
+        }
+
+        // Get venue's active and upcoming events
+        public List<Event> GetVenueActiveUpcomingEvents(int venueId)
+        {
+            return _context.Events
+                .Include(e => e.Category)
+                .Include(e => e.Organizer)
+                .Where(e => e.VenueID == venueId 
+                    && (e.Status == "Active" || e.Status == "Upcoming"))
+                .OrderBy(e => e.StartTime)
+                .ToList();
+        }
 
         public IQueryable<Event> GetQueryableEvents()
         {
             return _context.Events
                            .Include(e => e.Category)
                            .Include(e => e.Venue)
-                           .Where(e => e.Status != "Expired" && e.Status != "Cancelled");
+                           .Where(e => e.Status != "Expired" && e.Status != "Cancelled" && e.Status != "Inactive");
         }
 
         public bool IsVenueOccupied(int venueId, DateTime start, DateTime end, int currentEventId)

@@ -62,6 +62,18 @@
                 }
             </select>
         </form>
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label for="venueSelect" class="form-label mb-0">Venue:</label>
+            <select id="venueSelect" name="venue" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                <option value="">All</option>
+                @foreach (var ven in ViewBag.listVenue as List<Venue>)
+                {
+                    <option value="@(ven.VenueID)">
+                        @ven.Name
+                    </option>
+                }
+            </select>
+        </form>
 
         <a asp-action="CreateEvent" asp-controller="Event" class="btn btn-primary btn-sm ms-2">
             <i class="bi bi-plus-circle me-1"></i> Create Event
@@ -135,6 +147,13 @@
                                 <a href="@Url.Action("Index", "Event", new { id = item.EventID })" class="btn btn-sm btn-outline-primary" title="View">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                @if (item.VenueID.HasValue)
+                                {
+                                    <a asp-action="VenueTimeline" asp-route-venueId="@item.VenueID" asp-route-eventId="@item.EventID" 
+                                       class="btn btn-sm btn-outline-info" title="View Venue Schedule">
+                                        <i class="bi bi-calendar3"></i>
+                                    </a>
+                                }
                                 @if (item.Status == "Inactive")
                                 {
                                     <a asp-action="AcceptEvent" asp-route-id="@item.EventID" asp-controller="Admin"
@@ -146,6 +165,12 @@
                                 }
                                 @if (item.Status == "Upcoming" || item.Status == "Active")
                                 {
+                                    <a asp-action="InactivateEvent" asp-route-id="@item.EventID" asp-controller="Admin"
+                                       class="btn btn-sm btn-outline-warning"
+                                       title="Set this event to Inactive (will not display on homepage)"
+                                       onclick="return confirm('Are you sure you want to set this event to Inactive? It will not be displayed on the homepage.');">
+                                        <i class="bi bi-dash-circle"></i> Inactive
+                                    </a>
                                     <a asp-action="CancelEvent" asp-route-id="@item.EventID" asp-controller="Admin"
                                        class="btn btn-sm btn-outline-danger"
                                        title="Cancel this event"

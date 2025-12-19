@@ -15,7 +15,9 @@ namespace EventController.Models.DAO.Implements
 
         public List<Venue> GetAllVenues()
         {
-            return _context.Venues.ToList();
+            return _context.Venues
+                .Include(v => v.Events)
+                .ToList();
         }
 
         public Venue GetVenueById(int id)
@@ -33,6 +35,11 @@ namespace EventController.Models.DAO.Implements
 
         public void UpdateVenue(Venue venue)
         {
+            var existingVenue = _context.Venues.Local.FirstOrDefault(v => v.VenueID == venue.VenueID);
+            if (existingVenue != null)
+            {
+                _context.Entry(existingVenue).State = EntityState.Detached;
+            }
             _context.Venues.Update(venue);
             _context.SaveChanges();
         }

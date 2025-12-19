@@ -73,6 +73,7 @@ namespace EventController.Controllers
             if(reg.Quantity == 1 && actionType == "Decrease")
             {
                 _registrationDAO.CancelRegistration(id);
+                ViewBag.listRegistration = _registrationDAO.getPendingUserRegistration(user.UserID);
                 return View("Index");
             }
             if (actionType == "Increase")
